@@ -1,21 +1,34 @@
 module watchfish
 
-export Component, Model, Results, add_component!, run_fish
+export Component, Model, Results, add_component!, run_fish, pretty_results
 using NLopt
+using DataFrames
+using DataStructures
 
 # Note, should this really be mutable?
 mutable struct Component
   name::String
   μ::Float64
   σ::Float64
+  fit::Float64
+  low::Float64
+  high::Float64
+  likelihood_x::Array{Float64}
+  likelihood_y::Array{Float64}
+  function Component(name::String, μ::Float64, σ::Float64)
+    new(name, μ, σ, 0.0, 0.0, 0.0,
+        Array{Float64}(undef, 0),
+        Array{Float64}(undef, 0),
+       )
+  end
 end
 
 mutable struct Model
-  component_dict::Dict{String, Component}
+  component_dict::OrderedDict{String, Component}
   dims::Int64
   function Model()
     new( 
-        Dict{String, Component}(), 
+        OrderedDict{String, Component}(), 
         0, 
        ) 
   end
@@ -74,7 +87,9 @@ function run_fish(m::Model, data)
   opt.min_objective = objective
   (minf, minx, ret) = optimize!(opt, p0)
   numevals = opt.numevals
-  println("Got $minf at $minx after $numevals iterations")
+  for (idx, (k, v)) in enumerate(m.component_dict)
+    v.fit = minx[idx]
+  end
   Results( opt, m, copy(minf), copy(minx), numevals,
           copy(opt.lower_bounds), copy(opt.upper_bounds) )
 end
@@ -87,6 +102,30 @@ function Base.show(io::IO, m::Results)
     println("Best fit at: -LnL = $(m.min_objective)")
     println("Values of $(m.min_parameters)")
   end
+end
+
+function pretty_results(r::Results)
+  df = DataFrame(
+                 Name = String[],
+                 Estimate = Float64[],
+                 Constraint = Float64[],
+                 Fit = Float64[],
+                 Interval_Low = Float64[],
+                 Interval_High = Float64[],
+                )
+  for (k,v) in r.model.component_dict
+    push!( df,
+          (
+           v.name,
+           v.μ,
+           v.σ,
+           v.fit,
+           v.low,
+           v.high,
+          )
+         )
+  end
+  return df
 end
 
 end # End module
