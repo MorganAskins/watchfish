@@ -76,6 +76,9 @@ function run_fish!(m::Model, data)
       grad = 2x
     end
     λ = sum(x)
+    if λ <= 0
+      return Inf
+    end
     ξ = sum( constraint.(x, β, σ) )
     λ - N*log(λ) + N*log(N) - N + ξ
   end
@@ -127,7 +130,7 @@ function pretty_results(r::Results)
   return df
 end
 
-function profile!(name, results; stop=6, step=1.0)
+function profile!(name, results; stop=5, step=1.0)
   idx = 0
   for (i, (k,v)) in enumerate(results.model.component_dict)
     if k == name
@@ -211,6 +214,9 @@ function uncertainty!(name, results, α ; mode="FC")
   comp.low, comp.high = left, right
   left, right
 end
+
+## Plotting tools
+include("plotter.jl")
 
 # WatchFish exports based on a blacklist; where functions
 # which begin with "_" are not exported.
