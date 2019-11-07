@@ -3,6 +3,7 @@ module WatchFish
 using NLopt
 using DataFrames
 using DataStructures
+using SpecialFunctions
 
 # Note, should this really be mutable?
 mutable struct Component
@@ -188,14 +189,30 @@ function profile!(name, results; stop=5, step=1.0)
   return x, nll
 end
 
-function compute_profiled_uncertainties!(results, α; mode="FC")
+function compute_profiled_uncertainties!(results 
+                                         ; CL=nothing, σ=nothing, mode="FC")
+  if CL != nothing
+    α = CL
+  elseif σ != nothing
+    α = erf(σ/sqrt(2))
+  else
+    α = 0.90
+  end
+
   for (k, v) in results.model.component_dict
     profile!(k, results)
-    uncertainty!(k, results, α; mode=mode)
+    uncertainty!(k, results; CL=α, mode=mode)
   end
 end
 
-function uncertainty!(name, results, α ; mode="FC")
+function uncertainty!(name, results; CL=nothing, σ=nothing, mode="FC")
+  if CL != nothing
+    α = CL
+  elseif σ != nothing
+    α = erf(σ/sqrt(2))
+  else
+    α = erf(1/sqrt(2)) # 1 Sigma default
+  end
   comp = results.model.component_dict[name]
   x, y = comp.likelihood_x, comp.likelihood_y
   # Mode can be FC (Feldman-Cousins), Mode-centered, mean-centered, left, right, etc.
