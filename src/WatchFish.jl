@@ -131,7 +131,7 @@ function pretty_results(r::Results)
   return df
 end
 
-function profile!(name, results; stop=5, step=1.0)
+function profile!(name, results; stop=5, step=1.0, prior=nothing)
   idx = 0
   for (i, (k,v)) in enumerate(results.model.component_dict)
     if k == name
@@ -183,9 +183,11 @@ function profile!(name, results; stop=5, step=1.0)
   x = append!(reverse(x_left), x_right)
   nll = append!(reverse(nll_left), nll_right)
   # update the component with the likelihood results
+  if prior != nothing
+    nll = nll .* prior.(x)
+  end
   component.likelihood_x = x
   component.likelihood_y = nll
-
   return x, nll
 end
 
@@ -205,7 +207,8 @@ function compute_profiled_uncertainties!(results
   end
 end
 
-function uncertainty!(name, results; CL=nothing, σ=nothing, mode="FC")
+function uncertainty!(name, results; 
+                      CL=nothing, σ=nothing, mode="FC", prior=nothing)
   if CL != nothing
     α = CL
   elseif σ != nothing
@@ -215,6 +218,10 @@ function uncertainty!(name, results; CL=nothing, σ=nothing, mode="FC")
   end
   comp = results.model.component_dict[name]
   x, y = comp.likelihood_x, comp.likelihood_y
+  # Apply the arbitrary prior function f(x)
+  if prior != nothing
+    y = y .* prior.(x)
+  end
   # Mode can be FC (Feldman-Cousins), Mode-centered, mean-centered, left, right, etc.
   # Return cumulative, x_low, x_high
   y = y / sum(y)
