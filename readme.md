@@ -1,6 +1,6 @@
 # Watchfish
 
-![io](https://morganaskins.github.io/watchfish)
+[Presentation.io](https://morganaskins.github.io/watchfish)
 
 Given $M$ components, each with an estimated rate $\vec{\beta}$ determined by a
 normal distribution with uncertainty $\vec{\sigma}$, calculate the confidence
