@@ -1,5 +1,7 @@
 # Watchfish
 
+![io](https://morganaskins.github.io/watchfish)
+
 Given $M$ components, each with an estimated rate $\vec{\beta}$ determined by a
 normal distribution with uncertainty $\vec{\sigma}$, calculate the confidence
 itervals and perform a hypothesis tests for each parameter $b$.
