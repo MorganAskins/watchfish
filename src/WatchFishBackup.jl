@@ -101,6 +101,44 @@ function run_fish!(m::Model, data)
           copy(opt.lower_bounds), copy(opt.upper_bounds) )
 end
 
+function run_likelihood!(m::Model, data)
+#  N  = data
+#  β  = Array{Float64}(undef, 0)
+#  σ  = Array{Float64}(undef, 0)
+#  p0 = Array{Float64}(undef, 0)
+#  name = Array{String}(undef, 0)
+#  for (k, v) in m.component_dict
+#    push!(β, v.μ)
+#    push!(p0, v.μ)
+#    push!(σ, v.σ)
+#    push!(name, k)
+#  end
+#
+#  function objective(x::Vector, grad::Vector)
+#    if length(grad)>0
+#      grad = 2x
+#    end
+#    λ = sum(x)
+#    if λ <= 0
+#      return Inf
+#    end
+#    ξ = sum( constraint.(x, β, σ) )
+#    λ - N*log(λ) + N*log(N) - N + ξ
+#  end
+#  opt = Opt(:LN_SBPLX, m.dims)
+#  opt.ftol_rel = 1e-4
+#  lb = [0.0 for a in 1:length(β)]
+#  opt.lower_bounds = lb
+#  opt.min_objective = objective
+#  (minf, minx, ret) = optimize!(opt, p0)
+#  numevals = opt.numevals
+#  for (idx, (k, v)) in enumerate(m.component_dict)
+#    v.fit = minx[idx]
+#  end
+#  Results( opt, m, copy(minf), copy(minx), numevals,
+#          copy(opt.lower_bounds), copy(opt.upper_bounds) )
+end
+
 ## Show the results
 function Base.show(io::IO, m::Results)
   compact = get(io, :compact, false)
@@ -244,9 +282,8 @@ function uncertainty!(name, results;
 end
 
 ## Plotting tools
-include("predefined_functions.jl")
-include("variable.jl")
 include("plotter.jl")
+include("variable.jl")
 
 # WatchFish exports based on a blacklist; where functions
 # which begin with "_" are not exported.
