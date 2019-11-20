@@ -11,6 +11,7 @@ abstract type Model end
 include("predefined_functions.jl")
 include("variable.jl")
 include("likelihood.jl")
+include("model.jl")
 include("plotter.jl")
 # Kit definitions
 
@@ -208,11 +209,11 @@ function compute_profiled_uncertainties!(results
   end
   for param in results.model.params
     profile!(param.name, results)
-    uncertainty!(param, results; CL=α, mode=mode)
+    uncertainty!(param.name, results; CL=α, mode=mode)
   end
 end
 
-function uncertainty!(param, results; 
+function uncertainty!(name, results; 
                       CL=nothing, σ=nothing, mode="FC", prior=nothing)
   if CL != nothing
     α = CL
@@ -221,6 +222,13 @@ function uncertainty!(param, results;
   else
     α = erf(1/sqrt(2)) # 1 Sigma default
   end
+  idx = 0
+  for (i, p) in enumerate(results.model.params)
+    if p.name == name
+      idx = i
+    end
+  end
+  param = results.model.params[idx]
   x, y = param.likelihood_x, param.likelihood_y
   # Apply the arbitrary prior function f(x)
   if prior != nothing

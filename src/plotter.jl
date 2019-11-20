@@ -50,7 +50,7 @@ end
 
 function correlation_plots(results; steps=200)
   ## Everything stored in results
-  M = results.model.dims
+  M = length(results.model.params)
   fig, ax = subplots(nrows=M, ncols=M)
 
   ## We will be lazy for now and robust later. Lazy way, assume we know the range
@@ -58,8 +58,8 @@ function correlation_plots(results; steps=200)
   # We can optimize again, with a constraint in place (bounds)
   levels = exp.(-[Inf,11.83,6.18,2.3,0].^0.5./2)
 
-  for (i, (k,v)) in enumerate(results.model.component_dict)
-    for (j, (l,w)) in enumerate(results.model.component_dict)
+  for (i, v) in enumerate(results.model.params)
+    for (j, w) in enumerate(results.model.params)
       if j < M
         ax[j, i].set_xticklabels([])
       end
@@ -111,7 +111,7 @@ function correlation_plots(results; steps=200)
         continue
       end
       ax[i, i].plot( v.likelihood_x, v.likelihood_y )
-      ax[i, i].set_title(k)
+      ax[i, i].set_title(v.name)
     ax[i,i].set_ylim(0, 1.2)
     end
   end

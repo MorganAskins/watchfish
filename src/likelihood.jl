@@ -47,7 +47,7 @@ mutable struct NLogLikelihood
       seval *= ") +"
     end
     seval = seval[1:end-1]
-    @show seval
+    #@show seval
     ff = eval(Meta.parse("x->"*seval))
     new(ff, nparams, vv, params)
   end
