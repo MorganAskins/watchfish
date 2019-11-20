@@ -4,7 +4,15 @@ using Printf
 using NLopt
 
 function interval_plot(results, name)
-  comp = results.model.component_dict[name]
+  #comp = results.model.component_dict[name]
+  ### TODO fix this
+  idx = 0
+  for (i, p) in enumerate(results.model.params)
+    if p.name == name
+      idx = i
+    end
+  end
+  comp = results.model.params[idx]
   # Check if these are already computed, if not compute
   if length(comp.likelihood_x) == 0
     compute_profiled_uncertainties!(results, 0.68)

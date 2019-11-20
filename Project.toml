@@ -1,0 +1,11 @@
+name = "WatchFish"
+uuid = "5484b73d-e29e-401e-9147-682dc0f73acd"
+authors = ["Morgan Askins <maskins@ucdavis.edu>"]
+version = "0.1.0"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"

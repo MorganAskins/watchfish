@@ -5,36 +5,80 @@ using DataFrames
 using DataStructures
 using SpecialFunctions
 
-# Note, should this really be mutable?
-mutable struct Component
-  name::String
-  μ::Float64
-  σ::Float64
-  spectrum::Function
-  fit::Float64
-  low::Float64
-  high::Float64
-  likelihood_x::Array{Float64}
-  likelihood_y::Array{Float64}
-  function Component(name::String, μ::Float64, σ::Float64, 
-                    spectrum::Function)
-    new(name, μ, σ, spectrum, 
-        0.0, 0.0, 0.0,
-        Array{Float64}(undef, 0),
-        Array{Float64}(undef, 0),
-       )
+abstract type Model end
+
+# Primary definitions
+include("predefined_functions.jl")
+include("variable.jl")
+include("likelihood.jl")
+include("plotter.jl")
+# Kit definitions
+
+# Move me (below)
+function optimize_model!(m::Model, n::NLogLikelihood; 
+                         lower_bounds=nothing, upper_bounds=nothing)
+  function objective(x::Vector, grad::Vector)
+    if length(grad)>0
+      grad = 2x
+    end
+    n.objective(x)
+  end
+  opt = Opt(:LN_SBPLX, n.numparams)
+  opt.ftol_rel = 1e-4
+  if lower_bounds != nothing
+    opt.lower_bounds = lower_bounds
+  end
+  if upper_bounds != nothing
+    opt.upper_bounds = upper_bounds
+  end
+  opt.min_objective = objective
+  p0 = [v.init for v in n.parameters]
+  (minf, minx, ret) = optimize!(opt, p0)
+  numevals = opt.numevals
+  for (i,p) in enumerate(m.params)
+    p.fit = minx[i]
+  end
+  Results( opt, m, copy(minf), copy(minx), numevals,
+           copy(opt.lower_bounds), copy(opt.upper_bounds) )
+end
+
+mutable struct CountingExperiment <: Model
+  params
+  pdflist
+  nll::NLogLikelihood
+  counts::Constant
+  function CountingExperiment()
+    new( [], [], NLogLikelihood(),
+        Constant("counts", 0.0) )
   end
 end
 
-mutable struct Model
-  component_dict::OrderedDict{String, Component}
-  dims::Int64
-  function Model()
-    new( 
-        OrderedDict{String, Component}(), 
-        0, 
-       ) 
+function add_component!( m::CountingExperiment, name::String, μ; σ=Inf )
+  p = Parameter( name; init=μ )
+  push!(m.params, p)
+  if σ != Inf
+    a = Constant( name*"_mu", μ )
+    b = Constant( name*"_sig", σ )
+    nlp = NLogPDF( "lognormal", p, a, b )
+    push!(m.pdflist, nlp)
   end
+end
+
+function set_counts!( m::CountingExperiment, counts::Number )
+  m.counts.init = Float64(counts)
+end
+
+function minimize!( m::CountingExperiment )
+  poisson_pdf = NLogPDF("logpoisson", m.counts, (m.params)...)
+  likelihood = NLogLikelihood([m.pdflist..., poisson_pdf])
+  add_likelihood!( m, likelihood )
+  optimize_model!( m, likelihood; 
+                   lower_bounds=[0.0 for a in 1:length(m.params)] )
+end
+
+function add_likelihood!( m::Model, nll::NLogLikelihood )
+  m.nll = nll
+  m.params = nll.parameters
 end
 
 mutable struct Results
@@ -47,11 +91,6 @@ mutable struct Results
   upper_bounds::Array{Float64}
 end
 
-function add_component!(m::Model, name::String, μ; 
-                        σ=Inf, spectrum=x->1 )
-  get!(m.component_dict, name, Component(name, μ, σ, spectrum))
-  m.dims = length(m.component_dict)
-end
 
 function constraint(x, μ, σ)
   if σ == Inf
@@ -61,44 +100,6 @@ function constraint(x, μ, σ)
     return Inf
   end
   (x-μ)^2/2/σ^2
-end
-
-function run_fish!(m::Model, data)
-  N  = data
-  β  = Array{Float64}(undef, 0)
-  σ  = Array{Float64}(undef, 0)
-  p0 = Array{Float64}(undef, 0)
-  name = Array{String}(undef, 0)
-  for (k, v) in m.component_dict
-    push!(β, v.μ)
-    push!(p0, v.μ)
-    push!(σ, v.σ)
-    push!(name, k)
-  end
-
-  function objective(x::Vector, grad::Vector)
-    if length(grad)>0
-      grad = 2x
-    end
-    λ = sum(x)
-    if λ <= 0
-      return Inf
-    end
-    ξ = sum( constraint.(x, β, σ) )
-    λ - N*log(λ) + N*log(N) - N + ξ
-  end
-  opt = Opt(:LN_SBPLX, m.dims)
-  opt.ftol_rel = 1e-4
-  lb = [0.0 for a in 1:length(β)]
-  opt.lower_bounds = lb
-  opt.min_objective = objective
-  (minf, minx, ret) = optimize!(opt, p0)
-  numevals = opt.numevals
-  for (idx, (k, v)) in enumerate(m.component_dict)
-    v.fit = minx[idx]
-  end
-  Results( opt, m, copy(minf), copy(minx), numevals,
-          copy(opt.lower_bounds), copy(opt.upper_bounds) )
 end
 
 ## Show the results
@@ -114,18 +115,18 @@ end
 function pretty_results(r::Results)
   df = DataFrame(
                  Name = String[],
-                 Estimate = Float64[],
-                 Constraint = Float64[],
+#                 Estimate = Float64[],
+#                 Constraint = Float64[],
                  Fit = Float64[],
                  Interval_Low = Float64[],
                  Interval_High = Float64[],
                 )
-  for (k,v) in r.model.component_dict
+  for v in r.model.params
     push!( df,
           (
            v.name,
-           v.μ,
-           v.σ,
+#           v.μ,
+#           v.σ,
            v.fit,
            v.low,
            v.high,
@@ -137,16 +138,17 @@ end
 
 function profile!(name, results; stop=5, step=1.0, prior=nothing)
   idx = 0
-  for (i, (k,v)) in enumerate(results.model.component_dict)
-    if k == name
+  for (i, p) in enumerate(results.model.params)
+    if p.name == name
       idx = i
     end
   end
   if idx == 0
     return 0, 0
   end
-  component = results.model.component_dict[name]
-  # Go left
+  #component = results.model.component_dict[name]
+  param = results.model.params[idx]
+  ## Go left
   x_left = []
   nll_left = []
   nlow = copy(results.lower_bounds)
@@ -165,7 +167,7 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
     push!(x_left, xeval)
     xeval -= step
   end
-  # Go right
+  ## Go right
   x_right = []
   nll_right = []
   nlow = copy(results.lower_bounds)
@@ -186,12 +188,12 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
   end
   x = append!(reverse(x_left), x_right)
   nll = append!(reverse(nll_left), nll_right)
-  # update the component with the likelihood results
+  ## update the component with the likelihood results
   if prior != nothing
     nll = nll .* prior.(x)
   end
-  component.likelihood_x = x
-  component.likelihood_y = nll
+  param.likelihood_x = x
+  param.likelihood_y = nll
   return x, nll
 end
 
@@ -204,14 +206,13 @@ function compute_profiled_uncertainties!(results
   else
     α = 0.90
   end
-
-  for (k, v) in results.model.component_dict
-    profile!(k, results)
-    uncertainty!(k, results; CL=α, mode=mode)
+  for param in results.model.params
+    profile!(param.name, results)
+    uncertainty!(param, results; CL=α, mode=mode)
   end
 end
 
-function uncertainty!(name, results; 
+function uncertainty!(param, results; 
                       CL=nothing, σ=nothing, mode="FC", prior=nothing)
   if CL != nothing
     α = CL
@@ -220,8 +221,7 @@ function uncertainty!(name, results;
   else
     α = erf(1/sqrt(2)) # 1 Sigma default
   end
-  comp = results.model.component_dict[name]
-  x, y = comp.likelihood_x, comp.likelihood_y
+  x, y = param.likelihood_x, param.likelihood_y
   # Apply the arbitrary prior function f(x)
   if prior != nothing
     y = y .* prior.(x)
@@ -239,14 +239,25 @@ function uncertainty!(name, results;
     left = minimum(region)
     right = maximum(region)
   end
-  comp.low, comp.high = left, right
+  param.low, param.high = left, right
   left, right
 end
 
+function add_dataset(name, df::DataFrame)
+  eval(:( $name = $df ) )
+end
+
+
+# todo, move macros
+macro addfunction(f)
+  :($f)
+end
+
+macro dataset( name, df )
+  :( $(esc(name)) = $df )
+end
+
 ## Plotting tools
-include("predefined_functions.jl")
-include("variable.jl")
-include("plotter.jl")
 
 # WatchFish exports based on a blacklist; where functions
 # which begin with "_" are not exported.
