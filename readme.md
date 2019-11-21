@@ -2,8 +2,7 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/morganaskins/watchfish/master)
 [![Build Status](https://travis-ci.com/MorganAskins/watchfish.svg?branch=master)](https://travis-ci.com/MorganAskins/watchfish)
-
-[Presentation.io](https://morganaskins.github.io/watchfish)
+[![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://morganaskins.github.io/watchfish)
 
 Given $M$ components, each with an estimated rate $\vec{\beta}$ determined by a
 normal distribution with uncertainty $\vec{\sigma}$, calculate the confidence
