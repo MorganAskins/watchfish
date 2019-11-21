@@ -3,4 +3,3 @@ os:
   - linux
 julia:
   - 1.2.0
-  - nightly
