@@ -1,6 +1,7 @@
 # Watchfish
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/morganaskins/watchfish/master)
+
 [Presentation.io](https://morganaskins.github.io/watchfish)
 
 Given $M$ components, each with an estimated rate $\vec{\beta}$ determined by a
