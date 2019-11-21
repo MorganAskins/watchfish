@@ -1,8 +1,4 @@
 # Plotting functions
-using PyPlot
-using Printf
-using NLopt
-
 function interval_plot(results, name)
   #comp = results.model.component_dict[name]
   ### TODO fix this

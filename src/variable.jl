@@ -1,6 +1,3 @@
-using DataFrames
-using NLopt
-
 abstract type Variable end
 
 mutable struct Parameter <: Variable
