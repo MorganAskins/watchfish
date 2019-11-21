@@ -1,6 +1,7 @@
 # Watchfish
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/morganaskins/watchfish/master)
+[![Build Status](https://travis-ci.com/MorganAskins/watchfish.svg?branch=master)](https://travis-ci.com/MorganAskins/watchfish)
 
 [Presentation.io](https://morganaskins.github.io/watchfish)
 
