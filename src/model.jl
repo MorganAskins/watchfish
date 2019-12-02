@@ -46,3 +46,8 @@ function getparam(m::Model, name::String)
   end
   return nothing
 end
+
+function add_likelihood!( m::Model, nll::NLogLikelihood )
+  m.nll = nll
+  m.params = nll.parameters
+end
