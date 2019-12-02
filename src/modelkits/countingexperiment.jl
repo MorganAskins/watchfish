@@ -20,11 +20,6 @@ function add_component!( m::CountingExperiment, name::String, μ; σ=Inf )
   end
 end
 
-function add_likelihood!( m::Model, nll::NLogLikelihood )
-  m.nll = nll
-  m.params = nll.parameters
-end
-
 function set_counts!( m::CountingExperiment, counts::Number )
   m.counts.init = Float64(counts)
 end
