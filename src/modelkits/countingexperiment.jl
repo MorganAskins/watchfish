@@ -10,7 +10,7 @@ mutable struct CountingExperiment <: Model
 end
 
 function add_component!( m::CountingExperiment, name::String, μ; σ=Inf )
-  p = Parameter( name; init=μ )
+  p = Parameter( name; init=μ, bounds=(0.0, Inf) )
   push!(m.params, p)
   if σ != Inf
     a = Constant( name*"_mu", μ )
@@ -28,6 +28,7 @@ function minimize!( m::CountingExperiment )
   poisson_pdf = NLogPDF("logpoisson", m.counts, (m.params)...)
   likelihood = NLogLikelihood([m.pdflist..., poisson_pdf])
   add_likelihood!( m, likelihood )
-  optimize_model!( m, likelihood; 
-                   lower_bounds=[0.0 for a in 1:length(m.params)] )
+  optimize_model!( m, likelihood )
+  #optimize_model!( m, likelihood; 
+  #                 lower_bounds=[0.0 for a in 1:length(m.params)] )
 end

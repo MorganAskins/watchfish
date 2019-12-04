@@ -2,15 +2,20 @@ mutable struct CustomModel <: Model
   params
   pdflist::Array{NLogPDF}
   nll::NLogLikelihood
+  lower_bounds::Array{Float64}
+  upper_bounds::Array{Float64}
   function CustomModel()
     new( [], 
         Array{NLogPDF}(undef, 0),
-        NLogLikelihood() )
+        NLogLikelihood(),
+        Array{Float64}(undef, 0),
+        Array{Float64}(undef, 0)
+       )
   end
 end
 
 function add_parameters!( m::CustomModel, params )
-  for p in params
+  for (idx,p) in enumerate(params)
     push!(m.params, p)
   end
 end
@@ -23,6 +28,6 @@ end
 
 function minimize!( m::CustomModel )
   likelihood = NLogLikelihood( m.pdflist )
-  add_likelihood!(m, likelihood )
+  add_likelihood!( m, likelihood )
   optimize_model!( m, likelihood )
 end
