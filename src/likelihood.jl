@@ -11,6 +11,8 @@ mutable struct NLogLikelihood
   numparams::Int64
   variableList
   parameters
+  lower_bounds
+  upper_bounds
   function NLogLikelihood(pf::Array{NLogPDF})
     var_list = []
     for p in pf
@@ -20,6 +22,8 @@ mutable struct NLogLikelihood
     end
     vv = unique(var_list)
     params = [v for v in vv if v.constant == false]
+    lower_bounds = [v.bounds[1] for v in vv if v.constant == false]
+    upper_bounds = [v.bounds[2] for v in vv if v.constant == false]
     nparams = length(params)
     npdf = length(pf)
     matches = []
@@ -49,7 +53,7 @@ mutable struct NLogLikelihood
     seval = seval[1:end-1]
     #@show seval
     ff = eval(Meta.parse("x->"*seval))
-    new(ff, nparams, vv, params)
+    new(ff, nparams, vv, params, lower_bounds, upper_bounds)
   end
   function NLogLikelihood()
     new(x->x, 0, [], [])
