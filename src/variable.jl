@@ -8,6 +8,7 @@ mutable struct Parameter <: Variable
   init::Float64
   units::String
   constant::Bool
+  bounds::Tuple{Float64, Float64}
   # Post fit information
   fit::Float64
   low::Float64
@@ -16,8 +17,8 @@ mutable struct Parameter <: Variable
   likelihood_y::Array{Float64}
   function Parameter( name::String; info::String="", min::Float64=-Inf,
                       max::Float64=Inf, init::Float64=0.0, units::String="", 
-                      constant=false )
-    new( name, info, min, max, init, units, constant,
+                      constant=false, bounds::Tuple{Float64,Float64}=(-Inf, Inf) )
+    new( name, info, min, max, init, units, constant, bounds,
          0.0, 0.0, 0.0,
          Array{Float64}(undef, 0),
          Array{Float64}(undef, 0),
