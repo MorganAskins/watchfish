@@ -17,7 +17,7 @@ measurement to come from a particular components is given by
 The prior probability is then formed through a combination of these components
 such that the total probability is 
 
-<p align="center"><img src="svgs/33f2760534db4fe806e49280c548fc68.svg?invert_in_darkmode" align=middle width=99.53078024999999pt height=47.806078649999996pt/></p>
+<p align="center"><img src="svgs/33f2760534db4fe806e49280c548fc68.svg?invert_in_darkmode?sanitize=true" align=middle width=99.53078024999999pt height=47.806078649999996pt/></p>
 
 The likelihood for a full data set of <img src="svgs/f9c4988898e7f532b9f826a75014ed3c.svg?invert_in_darkmode" align=middle width=14.99998994999999pt height=22.465723500000017pt/> measurements is the product of each
 event total probability
