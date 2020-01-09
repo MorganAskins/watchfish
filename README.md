@@ -12,7 +12,9 @@ Nominally each event corresponds to a set of observables $\vec{x}$ of $N$
 measurements, for any given measurement, the probability for that particular
 measurement to come from a particular components is given by
 
+```Latex
 $$ P_i(\vec{x}) $$
+```
 
 The prior probability is then formed through a combination of these components
 such that the total probability is 
