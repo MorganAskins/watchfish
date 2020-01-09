@@ -12,7 +12,7 @@ Nominally each event corresponds to a set of observables $\vec{x}$ of $N$
 measurements, for any given measurement, the probability for that particular
 measurement to come from a particular components is given by
 
-```Latex
+```latex
 $$ P_i(\vec{x}) $$
 ```
 
