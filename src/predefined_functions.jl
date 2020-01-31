@@ -1,7 +1,9 @@
 """
 lognormal(x, μ, σ)
 
-(x-μ)^2/(2σ^2)
+```math
+\\frac{(x-μ)^2}{2σ^2}
+```
 """
 function lognormal(x, μ, σ)
   if σ == Inf
