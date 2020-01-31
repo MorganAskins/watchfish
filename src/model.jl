@@ -1,5 +1,19 @@
+"""
+abstract type Model
+
+Models hold the parameters of interest and the associated likelihood/cost
+functions used in optimization. Individual models should be derived from
+this base object.
+"""
 abstract type Model end
 
+"""
+Results
+
+Created upon optimizing a model, contains the model and all of
+its parameters as well as the optimized results found by
+minimizing the cost function.
+"""
 mutable struct Results
   opt
   model::Model

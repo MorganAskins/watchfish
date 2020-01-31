@@ -1,3 +1,9 @@
+"""
+NLogPDF(f::String, p::Variable...)
+
+Negative log PDF used when contructing the complete likelihood
+function. The NLogPDF should have a unique name `f::String`.
+"""
 mutable struct NLogPDF 
   func::String
   params::Array{Variable}
@@ -6,6 +12,12 @@ mutable struct NLogPDF
   end
 end
 
+"""
+NLogLikelihood(pf::Array{NLogPDF})
+
+Given an array of `NLogPDF`, a complete negative log-likelihood
+function is contructed which can then be passed to a minimizer.
+"""
 mutable struct NLogLikelihood
   objective::Function
   numparams::Int64

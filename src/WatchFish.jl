@@ -1,3 +1,10 @@
+"""
+WatchFish
+
+Julia library designed to build statistical models with associated systematic
+uncertainties and provide inference into particular parameters of interest.
+Both Bayesian and Frequentist analysis are supported.
+"""
 module WatchFish
 
 using NLopt
