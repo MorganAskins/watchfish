@@ -1,8 +1,9 @@
 # Watchfish
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/morganaskins/watchfish/master)
-[![Build Status](https://travis-ci.com/MorganAskins/watchfish.svg?branch=master)](https://travis-ci.com/MorganAskins/watchfish)
-[![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://morganaskins.github.io/watchfish)
+[![][stable-img]][stable-url]
+[![][dev-img]][dev-url]
+[![][travis-img]][travis-url]
+[![][binder-img]][binder-url]
 
 Given $M$ components, each with an estimated rate $\vec{\beta}$ determined by a
 normal distribution with uncertainty $\vec{\sigma}$, calculate the confidence
@@ -12,8 +13,8 @@ Nominally each event corresponds to a set of observables $\vec{x}$ of $N$
 measurements, for any given measurement, the probability for that particular
 measurement to come from a particular components is given by
 
-```latex
-$$ P_i(\vec{x}) $$
+```math
+P_i(\\vec{x})
 ```
 
 The prior probability is then formed through a combination of these components
@@ -63,3 +64,15 @@ $$\mathcal{O} = \lambda - N\text{Ln}\lambda + N\text{Ln}N - N + \sum_i^M \left( 
 _Note: If the different values of $\beta$ differ by orders of magnitude, it
 might be worth forming an affine invariant form of the likelihood, otherwise
 the $\text{Ln}\sqrt{2\pi \sigma_i}$ term should not matter_
+
+[binder-img]: https://mybinder.org/badge_logo.svg
+[binder-url]: https://mybinder.org/v2/gh/morganaskins/watchfish/master
+
+[travis-img]: https://travis-ci.com/MorganAskins/watchfish.svg?branch=master
+[travis-url]: https://travis-ci.com/MorganAskins/watchfish
+
+[stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[stable-url]: https://morganaskins.github.io/watchfish
+
+[dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
+[dev-url]: https://morganaskins.github.io/watchfish
