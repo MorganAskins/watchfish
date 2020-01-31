@@ -75,4 +75,4 @@ the $\text{Ln}\sqrt{2\pi \sigma_i}$ term should not matter_
 [stable-url]: https://morganaskins.github.io/watchfish
 
 [dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[dev-url]: https://morganaskins.github.io/watchfish
+[dev-url]: https://morganaskins.github.io/watchfish/dev
