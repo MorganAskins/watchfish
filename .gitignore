@@ -1,3 +1,4 @@
 examples/.ipynb_checkpoints*
 .ipynb_checkpoints*
 *.svg
+docs/build/
