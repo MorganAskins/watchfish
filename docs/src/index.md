@@ -1,4 +1,4 @@
-# Watchfish.jl Documentation
+# Batman.jl Documentation
 
 ```@docs
 Model

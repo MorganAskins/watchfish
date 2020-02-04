@@ -1,10 +1,10 @@
 push!(LOAD_PATH, "../src/")
-using Documenter, WatchFish
+using Documenter, Batman 
 
 makedocs(
-  sitename="WatchFish Documentation"
+  sitename="BATMAN Documentation"
 )
 
 deploydocs(
-  repo = "github.com/MorganAskins/watchfish.git",
+  repo = "github.com/MorganAskins/Batman.jl.git",
 )
