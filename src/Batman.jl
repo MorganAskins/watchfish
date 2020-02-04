@@ -1,11 +1,11 @@
 """
-WatchFish
+Batman
 
 Julia library designed to build statistical models with associated systematic
 uncertainties and provide inference into particular parameters of interest.
 Both Bayesian and Frequentist analysis are supported.
 """
-module WatchFish
+module Batman 
 
 using NLopt
 using DataFrames
@@ -27,7 +27,7 @@ include("modelkits/base.jl")
 # Finally, macros
 include("macros.jl")
 
-# WatchFish exports based on a blacklist; where functions
+# Batman exports based on a blacklist; where functions
 # which begin with "_" are not exported.
 const _EXCLUDE_SYMBOLS=[Symbol(@__MODULE__), :eval, :include]
 

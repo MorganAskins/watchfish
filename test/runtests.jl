@@ -1,4 +1,4 @@
-using Test, WatchFish
+using Test, Batman
 
 ## Ideas for tests
 # 1. Simple coverage tests. Try to use all functions
