@@ -2,7 +2,11 @@ push!(LOAD_PATH, "../src/")
 using Documenter, Batman 
 
 makedocs(
-  sitename="BATMAN Documentation"
+  sitename="Batman.jl",
+  modules=[Batman],
+  pages = Any[
+    "Home" => "index.md"
+  ]
 )
 
 deploydocs(
