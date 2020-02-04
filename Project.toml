@@ -1,7 +1,7 @@
 name = "WatchFish"
 uuid = "5484b73d-e29e-401e-9147-682dc0f73acd"
 authors = ["Morgan Askins <maskins@ucdavis.edu>"]
-version = "0.1.0"
+version = "0.0.1"
 
 [deps]
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
