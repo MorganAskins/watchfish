@@ -13,6 +13,16 @@ for evaluating confidence intervals and testing experimental sensitivity_
 ---
 
 ## Installation
+With Julia, you can install the Batman.jl package using the built-in
+package manager.
+```julia
+julia> using Pkg
+julia> Pkg.add(PackageSpec(url="https://github.com/MorganAskins/Batman.jl"))
+```
+
+## Documentation
+- [**STABLE**][stable-url] &mdash; **Documentation of the most recently tagged version.**
+- [**DEVEL**][dev-url] &mdash; *Documentation of the master branch.*
 
 [binder-img]: https://mybinder.org/badge_logo.svg
 [binder-url]: https://mybinder.org/v2/gh/MorganAskins/Batman.jl/master
