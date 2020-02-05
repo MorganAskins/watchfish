@@ -1,9 +1,10 @@
 # Bayesian Analysis Toolkit for Monitoring Anti-Neutrinos
 
-[![][stable-img]][stable-url]
-[![][dev-img]][dev-url]
-[![][travis-img]][travis-url]
-[![][binder-img]][binder-url]
+|   |   |
+|:-:|:-:|
+| Documentation | [![][stable-img]][stable-url] [![][dev-img]][dev-url] |
+| Development   | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] |
+| Examples      | [![][binder-img]][binder-url] |
 
 [binder-img]: https://mybinder.org/badge_logo.svg
 [binder-url]: https://mybinder.org/v2/gh/MorganAskins/Batman.jl/master
@@ -16,3 +17,6 @@
 
 [dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [dev-url]: https://MorganAskins.github.io/Batman.jl/dev
+
+[codecov-img]: https://codecov.io/gh/MorganAskins/Batman.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/MorganAskins/Batman.jl
