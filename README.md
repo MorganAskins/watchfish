@@ -12,6 +12,7 @@ sensitivity_
 
 ---
 
+## Installation
 
 [binder-img]: https://mybinder.org/badge_logo.svg
 [binder-url]: https://mybinder.org/v2/gh/MorganAskins/Batman.jl/master
@@ -27,3 +28,5 @@ sensitivity_
 
 [codecov-img]: https://codecov.io/gh/MorganAskins/Batman.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/MorganAskins/Batman.jl
+
+[Julia]: http://julialang.org/
