@@ -1,8 +1,9 @@
 # Batman.jl
-_A Bayesian Analysis Toolkit for Monitoring Anti-Neutrinos, written
-in [Julia], which provides a statistical analysis interface geared
-towards low-count experiments. BATMAN provides many customizable methods
-for evaluating confidence intervals and testing experimental sensitivity_
+_A **B**ayesian **A**nalysis **T**oolkit for **M**onitoring
+**A**nti-**N**eutrinos, written in [Julia], which provides a statistical
+analysis interface geared towards low-count experiments. BATMAN provides many
+customizable methods for evaluating confidence intervals and testing
+experimental sensitivity_
 
 |               |                                        |
 | :------------ | :------------------------------------- |
