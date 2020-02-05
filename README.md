@@ -1,10 +1,17 @@
-# Bayesian Analysis Toolkit for Monitoring Anti-Neutrinos
+# Batman.jl
+## Bayesian Analysis Toolkit for Monitoring Anti-Neutrinos
+_Statistical analysis interface for low-count experiments, which provides
+many customizable methods for evaluation confidence intervals and experimental
+sensitivity_
 
-|   |   |
-|:-:|:-:|
+|               |                                        |
+| :------------ | :------------------------------------- |
 | Documentation | [![][stable-img]][stable-url] [![][dev-img]][dev-url] |
 | Development   | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] |
 | Examples      | [![][binder-img]][binder-url] |
+
+---
+
 
 [binder-img]: https://mybinder.org/badge_logo.svg
 [binder-url]: https://mybinder.org/v2/gh/MorganAskins/Batman.jl/master
