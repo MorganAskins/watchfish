@@ -26,7 +26,7 @@ julia> ]
 
 ## Batsignal
 Logo for Batman.jl based on 
-```@example
+```julia
 using PyPlot
 σ(x) = @. √(1-x^2.0)
 e(x) = @. 3σ(x/7.0)
@@ -46,6 +46,5 @@ p(-3:0.01:-1, s)
 p(-4:0.01:4, b)
 p([0,0.5,0.8,1], c)
 p(-[0,0.5,0.8,1], c)
-plt.savefig("bat-plot.svg", transparent=true); # hide
 ```
-![](bat-plot.svg)
+![](assets/logo.svg)
