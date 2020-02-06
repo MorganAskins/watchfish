@@ -5,7 +5,8 @@ makedocs(
   sitename="Batman.jl",
   modules=[Batman],
   pages = Any[
-    "Home" => "index.md"
+    "Home" => "index.md",
+    "Library" => map(s -> "lib/$(s)", sort(readdir(joinpath(@__DIR__, "src/lib"))))
   ]
 )
 

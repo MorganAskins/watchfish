@@ -3,13 +3,13 @@ _A **B**ayesian **A**nalysis **T**oolkit for **M**onitoring
 **A**nti-**N**eutrinos, written in [Julia], which provides a statistical
 analysis interface geared towards low-count experiments. BATMAN provides many
 customizable methods for evaluating confidence intervals and testing
-experimental sensitivity_
+experimental sensitivity._
 
-|               |                                        |
-| :------------ | :------------------------------------- |
-| Documentation | [![][stable-img]][stable-url] [![][dev-img]][dev-url] |
-| Development   | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
-| Deployment    | [![][docker-img]][docker-url] [![][binder-img]][binder-url] |
+|                   |                                        |
+| :---------------- | :------------------------------------- |
+| **Documentation** | [![][stable-img]][stable-url] [![][dev-img]][dev-url] |
+| **Development**   | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+| **Deployment**    | [![][docker-img]][docker-url] [![][binder-img]][binder-url] |
 
 ---
 

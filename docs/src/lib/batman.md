@@ -1,0 +1,5 @@
+# Batman
+
+```@autodocs
+Modules = [Batman]
+```
