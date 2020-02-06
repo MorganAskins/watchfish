@@ -8,7 +8,7 @@ experimental sensitivity_
 |               |                                        |
 | :------------ | :------------------------------------- |
 | Documentation | [![][stable-img]][stable-url] [![][dev-img]][dev-url] |
-| Development   | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] |
+| Development   | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 | Examples      | [![][binder-img]][binder-url] |
 
 ---
@@ -39,5 +39,8 @@ julia> Pkg.add(PackageSpec(url="https://github.com/MorganAskins/Batman.jl"))
 
 [codecov-img]: https://codecov.io/gh/MorganAskins/Batman.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/MorganAskins/Batman.jl
+
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/sb0jkbj2thwdu3mr/branch/master?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/MorganAskins/batman-jl/branch/master
 
 [Julia]: http://julialang.org/
