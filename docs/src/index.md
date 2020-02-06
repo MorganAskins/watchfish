@@ -9,6 +9,9 @@ type of analysis to be performed including the posterior and prior
 probability distributions, all while naturally including nuisance
 parameters (such as systematic uncertainties).
 
+Source code available: 
+[github.com/MorganAskins/Batman.jl](https://github.com/MorganAskins/Batman.jl)
+
 ## Package features
 
 ## Installation
