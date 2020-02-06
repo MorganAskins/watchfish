@@ -24,7 +24,15 @@ mutable struct Results
   upper_bounds::Array{Float64}
 end
 
-## Generic model functions
+"""
+optimize_model!(m::Model, nll::NLogLikelihood;
+  lower_bounds=nothing, upper_bounds=nothing)
+
+Currently NLopt is used for minimizing the objective function.
+optimize_model! produces the objective function from the given
+NLogLikelihood which is then passed to NLopt to be minimized.
+optimize_model! returns a set of Results.
+"""
 function optimize_model!(m::Model, nll::NLogLikelihood; 
                          lower_bounds=nothing, upper_bounds=nothing)
   function objective(x::Vector, grad::Vector)

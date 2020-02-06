@@ -7,6 +7,7 @@ current namespace at read-time.
 # Examples
 ```julia-repl
 addfunction lognormalconstraint(x, μ, σ) = (x-μ)^2/2/σ
+```
 """
 macro addfunction(f)
   :($f)
