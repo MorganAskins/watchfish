@@ -1,5 +1,4 @@
 language: julia
-codecov: true
 
 os:
   - linux
@@ -14,12 +13,6 @@ env:
   matrix:
     - PYTHON=python3
 
-after_success:
-  - julia -e 'using Pkg;
-              Pkg.add("Coverage");
-              using Coverage;
-              Codecov.submit(process_folder());'
-
 jobs:
   include:
     - stage: "Documentation"
@@ -28,3 +21,9 @@ jobs:
                                     Pkg.develop(PackageSpec(path=pwd()));
                                     Pkg.instantiate();'
         - julia --project=docs/ docs/make.jl
+
+after_success:
+  - julia -e 'using Pkg;
+              Pkg.add("Coverage");
+              using Coverage;
+              Codecov.submit(process_folder());'
