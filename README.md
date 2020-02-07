@@ -32,7 +32,7 @@ julia> Pkg.add(PackageSpec(url="https://github.com/MorganAskins/Batman.jl"))
 [travis-url]: https://travis-ci.com/MorganAskins/Batman.jl
 
 [stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[stable-url]: https://MorganAskins.github.io/Batman.jl
+[stable-url]: https://MorganAskins.github.io/Batman.jl/stable
 
 [dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [dev-url]: https://MorganAskins.github.io/Batman.jl/dev
