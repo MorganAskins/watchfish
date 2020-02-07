@@ -5,4 +5,4 @@ using Test, Batman
 # 2. Benchmarking tests; speed of objective functions
 # 3. Bias / pull for known fits.
 
-@test 1 == 1
+include("poisson.jl")

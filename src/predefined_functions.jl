@@ -18,9 +18,11 @@ end
 """
 logpoisson(n, x...)
 
-  λ > 0
+```math
+  λ > 0 \\
   λ = sum([x...])
   λ - n*log(λ) + n*log(n) - n
+```math
 """
 function logpoisson(n, x...)
   λ = sum([x...])
