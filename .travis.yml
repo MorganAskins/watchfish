@@ -14,10 +14,10 @@ env:
     - PYTHON=python3
 
 after_success:
-  - julia --project=coverage/ -e 'using Pkg;
-                                  Pkg.instantiate();
-                                  using Coverage;
-                                  Codecov.submit(Codecov.process_folder());'
+  - julia -e 'using Pkg;
+              Pkg.add("Coverage");
+              using Coverage;
+              Codecov.submit(process_folder());'
 
 jobs:
   include:
