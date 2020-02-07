@@ -1,7 +1,7 @@
 name = "Batman"
 uuid = "35b143b4-47a7-11ea-2ac1-af8cbc4ae307"
 authors = ["Morgan Askins <maskins@ucdavis.edu>"]
-version = "0.0.1"
+version = "0.0.2"
 
 [deps]
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
