@@ -15,18 +15,13 @@ env:
 
 jobs:
   include:
-    - stage: "Testing"
-      script:
-        - julia --project=docs/ -e 'using Pkg; 
-                                    Pkg.develop(PackageSpec(path=pwd()));
-                                    Pkg.instantiate();'
-        - julia -e 'using Pkg; Pkg.test(coverage=true);'
     - stage: "Documentation"
       script:
         - julia --project=docs/ -e 'using Pkg; 
                                     Pkg.develop(PackageSpec(path=pwd()));
                                     Pkg.instantiate();'
         - julia --project=docs/ docs/make.jl
+        - julia -e 'using Pkg; Pkg.test(coverage=true);'
 
 after_success:
   - julia -e 'using Pkg;
