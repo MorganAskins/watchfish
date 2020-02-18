@@ -12,4 +12,7 @@ makedocs(
 
 deploydocs(
   repo = "github.com/MorganAskins/Batman.jl.git",
+  devbranch = "dev",
+  devurl = "dev",
+  versions = ["stable"=>"v^", "v#.#", devurl => devurl, "master"=>"master"]
 )
