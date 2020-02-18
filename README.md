@@ -37,6 +37,9 @@ julia> Pkg.add(PackageSpec(url="https://github.com/MorganAskins/Batman.jl"))
 [dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [dev-url]: https://MorganAskins.github.io/Batman.jl/dev
 
+[master-img]: https://img.shields.io/badge/docs-master-blue.svg
+[master-url]: https://MorganAskins.github.io/Batman.jl/master
+
 [codecov-img]: https://codecov.io/gh/MorganAskins/Batman.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/MorganAskins/Batman.jl
 
