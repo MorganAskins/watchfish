@@ -1,12 +1,14 @@
 name = "Batman"
 uuid = "35b143b4-47a7-11ea-2ac1-af8cbc4ae307"
 authors = ["Morgan Askins <maskins@ucdavis.edu>"]
-version = "0.0.1"
+version = "0.0.2"
 
 [deps]
+ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 NLopt = "76087f3c-5699-56af-9a33-bf431cd00edd"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"

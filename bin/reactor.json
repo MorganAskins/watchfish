@@ -1,0 +1,25 @@
+{
+  "components":
+  {
+    "signal":
+    {
+      "rate": 2.0,
+      "error": -1.0
+    },
+    "bkg1":
+    {
+      "rate": 3.0,
+      "error": 1.0
+    },
+    "bkg2":
+    {
+      "rate": 4.0,
+      "error": 2.0
+    }
+  },
+  "options":
+  {
+    "parameters_of_interest":"signal",
+    "days":180
+  }
+}

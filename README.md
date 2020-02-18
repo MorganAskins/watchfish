@@ -7,7 +7,7 @@ experimental sensitivity._
 
 |                   |                                        |
 | :---------------- | :------------------------------------- |
-| **Documentation** | [![][stable-img]][stable-url] [![][dev-img]][dev-url] |
+| **Documentation** | [![][stable-img]][stable-url] [![][master-img]][master-url] [![][dev-img]][dev-url] |
 | **Development**   | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 | **Deployment**    | [![][docker-img]][docker-url] [![][binder-img]][binder-url] |
 
@@ -36,6 +36,9 @@ julia> Pkg.add(PackageSpec(url="https://github.com/MorganAskins/Batman.jl"))
 
 [dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [dev-url]: https://MorganAskins.github.io/Batman.jl/dev
+
+[master-img]: https://img.shields.io/badge/docs-master-blue.svg
+[master-url]: https://MorganAskins.github.io/Batman.jl/master
 
 [codecov-img]: https://codecov.io/gh/MorganAskins/Batman.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/MorganAskins/Batman.jl
