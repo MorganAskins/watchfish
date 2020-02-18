@@ -7,7 +7,7 @@ experimental sensitivity._
 
 |                   |                                        |
 | :---------------- | :------------------------------------- |
-| **Documentation** | [![][stable-img]][stable-url] [![][dev-img]][dev-url] |
+| **Documentation** | [![][stable-img]][stable-url] [![][master-img]][master-url] [![][dev-img]][dev-url] |
 | **Development**   | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 | **Deployment**    | [![][docker-img]][docker-url] [![][binder-img]][binder-url] |
 
