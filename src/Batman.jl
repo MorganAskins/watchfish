@@ -1,3 +1,4 @@
+__precompile()__
 """
 Batman
 
