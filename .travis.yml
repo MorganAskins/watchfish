@@ -9,6 +9,8 @@ addons:
     packages:
       - python-matplotlib
       - python3-matplotlib
+      - python-awkward
+      - python3-awkward
 env:
   matrix:
     - PYTHON=python3
