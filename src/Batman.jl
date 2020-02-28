@@ -24,6 +24,9 @@ include("plotter.jl")
 include("show.jl")
 # Kit definitions
 include("modelkits/base.jl")
+# Submodules
+include("datastructures/DataStructures.jl")
+include("toolbelt/Toolbelt.jl")
 # Finally, macros
 include("macros.jl")
 
@@ -43,4 +46,4 @@ for sym in names(@__MODULE__, all=true)
   @eval export $sym
 end
 
-end # End module
+end # End module Batman

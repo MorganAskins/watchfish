@@ -18,16 +18,30 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
   p0 = copy(results.min_parameters)
   val = 0
   xeval = p0[idx]
+  count = 0
   while (val-results.min_objective) < stop
     nlow[idx] = xeval
     nhigh[idx] = xeval
     results.opt.lower_bounds = nlow
     results.opt.upper_bounds = nhigh
     p0[idx] = xeval
+    init_step = p0./10.0
+    init_step[idx] = xeval * 1e-6
+    results.opt.initial_step=init_step
     val, minx, ret = optimize!(results.opt, p0)
-    push!(nll_left, exp(-(val-results.min_objective)) )
+    likelihood_value = exp(-(val-results.min_objective))
+    if (likelihood_value == Inf) || (likelihood_value < 0)
+      break
+    end
+    push!(nll_left, likelihood_value )
     push!(x_left, xeval)
     xeval -= step
+    count += 1
+    if count > 1000
+      println("trials > 1000 -- ", val)
+      @show nll_left
+      break
+    end
   end
   ## Go right
   x_right = []
@@ -37,16 +51,30 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
   p0 = copy(results.min_parameters)
   val = 0
   xeval = p0[idx]
+  count = 0
   while (val-results.min_objective) < stop
     nlow[idx] = xeval
     nhigh[idx] = xeval
     results.opt.lower_bounds = nlow
     results.opt.upper_bounds = nhigh
     p0[idx] = xeval
+    init_step = p0./10.0
+    init_step[idx] = xeval * 1e-6
+    results.opt.initial_step=init_step
     val, minx, ret = optimize!(results.opt, p0)
-    push!(nll_right, exp(-(val-results.min_objective)) )
+    likelihood_value = exp(-(val-results.min_objective))
+    if (likelihood_value == Inf) || (likelihood_value < 0)
+      break
+    end
+    push!(nll_right, likelihood_value )
     push!(x_right, xeval)
     xeval += step
+    count += 1
+    if count > 1000
+      println("trials > 1000 -- ", val)
+      @show nll_right
+      break
+    end
   end
   x = append!(reverse(x_left), x_right)
   nll = append!(reverse(nll_left), nll_right)

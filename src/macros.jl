@@ -26,3 +26,13 @@ Introduce a new dataset into the namespace at read-time.
 function add_dataset(name, df::DataFrame)
   eval(:( $name = $df ) )
 end
+
+"""
+@add_function(name, function)
+
+Take a user function and pass ownership to a symbol internal
+to the Batman module.
+"""
+function add_function(name, func)
+  eval(:( $name = $func ) )
+end

@@ -32,9 +32,12 @@ Currently NLopt is used for minimizing the objective function.
 optimize_model! produces the objective function from the given
 NLogLikelihood which is then passed to NLopt to be minimized.
 optimize_model! returns a set of Results.
+
+TODO: Move lower_bounds and upper_bounds into options dict
 """
 function optimize_model!(m::Model, nll::NLogLikelihood; 
-                         lower_bounds=nothing, upper_bounds=nothing)
+                         lower_bounds=nothing, upper_bounds=nothing,
+                         options=Dict() )
   function objective(x::Vector, grad::Vector)
     if length(grad)>0
       grad = 2x
@@ -50,12 +53,24 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   # function at an absolute scale. This is because I am assuming that
   # the function is a log-likelihood, and thus has statistical information
   # in its derivative, but may be shifting by a constant NOT a scale factor.
-  opt.ftol_abs = 1e-6
+  p0 = [v.init for v in nll.parameters]
+  opt.ftol_abs     = get(options, "ftol_abs", 1e-6)
+  opt.ftol_rel     = get(options, "ftol_rel", 0)
+  opt.xtol_rel     = get(options, "xtol_rel", 0)
+  opt.xtol_abs     = get(options, "xtol_abs", 0)
+  opt.maxeval      = get(options, "maxeval", 0)
+  opt.maxtime      = get(options, "maxtime", 0)
+  opt.initial_step = get(options, "initial_step", p0./10.0)
+  opt.stopval      = get(options, "stopval", -Inf)
   opt.lower_bounds = nll.lower_bounds
   opt.upper_bounds = nll.upper_bounds
+
   opt.min_objective = objective
-  p0 = [v.init for v in nll.parameters]
   (minf, minx, ret) = optimize!(opt, p0)
+  ## If we fit twice we can go coarse the first time and then re-evaluate
+  opt.initial_step = minx ./ 10.0
+  (minf, minx, ret) = optimize!(opt, minx)
+
   numevals = opt.numevals
   for (i,p) in enumerate(m.params)
     p.fit = minx[i]
