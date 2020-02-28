@@ -12,6 +12,7 @@ addons:
       - python3-pip
 before_install:
   - python3 -m pip install awkward
+  - python3 -m pip install uproot 
 env:
   matrix:
     - PYTHON=python3
