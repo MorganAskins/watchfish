@@ -1,5 +1,9 @@
+import StatsBase
+import Interpolations; itp=Interpolations
+import KernelDensity
+
 """
-NLogPDF(f::String, p::Variable...)
+    NLogPDF(f::String, p::Variable...)
 
 Negative log PDF used when contructing the complete likelihood
 function. The NLogPDF should have a unique name `f::String`.
@@ -13,7 +17,7 @@ mutable struct NLogPDF
 end
 
 """
-NLogLikelihood(pf::Array{NLogPDF})
+    NLogLikelihood(pf::Array{NLogPDF})
 
 Given an array of `NLogPDF`, a complete negative log-likelihood
 function is contructed which can then be passed to a minimizer.
@@ -70,4 +74,54 @@ mutable struct NLogLikelihood
   function NLogLikelihood()
     new(x->x, 0, [], [])
   end
+end
+
+"""
+    HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
+
+Given a set of data `df`, along an axis `axis`, build a histogram
+to be used as a PDF in a fit.
+
+# Arguments
+- `df::DataFrame`: Data to build the PDF
+- `axis::Symbol`: Axis along which to slice the data
+- `ndim::Integer=1`: Number of dimensions
+- `bins=100`: Number of bins, or collection of bins.
+- `interpolate=Interpolations.Constant()`: Constant or Linear interpolation
+- `extrapolate=0`: Flat(), Linear(), or 0 extrapolation.
+"""
+function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
+  kwargs = Dict(kwargs)
+  ndim = get(kwargs, :dimensions, 1)
+  bins = get(kwargs, :bins, 100)
+  itp_model = get(kwargs, :interpolate, itp.Constant())
+  etp_model = get(kwargs, :extrapolate, 0)
+  h = StatsBase.fit( StatsBase.Histogram, df[!, axis], bins)
+  hx, hy = (h.edges[1][2:end] + h.edges[1][1:end-1])/2.0, h.weights
+  hy = hy ./ sum(hy)
+  itp.extrapolate( 
+      itp.interpolate((hx,), hy, itp.Gridded(itp_model)), etp_model
+  )
+end
+
+"""
+    KdePDF(df::DataFrame, axis::Symbol; kwargs...)
+
+Given a set of data `df`, along an axis `axis`, produce a kernel
+density estimate to use as a PDF in a fit.
+
+# Arguments
+- `df::DataFrame`: Data to build the PDF
+- `axis::Symbol`: Axis along which to slice the data
+- `ndim::Integer=1`: Number of dimensions
+"""
+function KdePDF(df::DataFrame, axis::Symbol; kwargs...)
+  kwargs = Dict(kwargs)
+  # :dimensions not used currently
+  ndim = get(kwargs, :dimensions, 1)
+
+  k = KernelDensity.kde(df[!, axis])
+  imd = KernelDensity.InterpKDE(k)
+  p(x) = KernelDensity.pdf(imd, x)
+  return p
 end

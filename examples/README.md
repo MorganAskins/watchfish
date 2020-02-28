@@ -14,8 +14,9 @@ Similar to the counting example, except that each parameter has an associated
 shape to further distinguish it from the others.
 
 ### 3_UpRoot
-Using the [UpRoot] library, [ROOT] files a read in and compared to similar
-distributions created directly in Julia.
+Using the [UpRoot] library, [ROOT] files are read in and compared to similar
+distributions created directly in Julia. An extended likelihood fit to the
+shapes of the spectra is preformed.
 
 [UpRoot]: https://github.com/JuliaHEP/UpROOT.jl
 [ROOT]: https://root.cern.sh
