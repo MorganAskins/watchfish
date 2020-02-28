@@ -27,6 +27,7 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
     p0[idx] = xeval
     init_step = p0./10.0
     init_step[idx] = xeval * 1e-6
+    init_step[(init_step .== 0)] .= 0.1
     results.opt.initial_step=init_step
     val, minx, ret = optimize!(results.opt, p0)
     likelihood_value = exp(-(val-results.min_objective))
@@ -60,6 +61,7 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
     p0[idx] = xeval
     init_step = p0./10.0
     init_step[idx] = xeval * 1e-6
+    init_step[(init_step .== 0)] .= 0.1
     results.opt.initial_step=init_step
     val, minx, ret = optimize!(results.opt, p0)
     likelihood_value = exp(-(val-results.min_objective))

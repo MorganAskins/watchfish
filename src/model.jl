@@ -70,7 +70,9 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   opt.min_objective = objective
   (minf, minx, ret) = optimize!(opt, p0)
   ## If we fit twice we can go coarse the first time and then re-evaluate
-  opt.initial_step = minx ./ 10.0
+  initial_step = minx ./ 10.0
+  initial_step[(initial_step .== 0)] .= 0.1
+  opt.initial_step = initial_step
   (minf, minx, ret) = optimize!(opt, minx)
 
   numevals = opt.numevals
