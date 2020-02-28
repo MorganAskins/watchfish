@@ -60,7 +60,9 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   opt.xtol_abs     = get(options, "xtol_abs", 0)
   opt.maxeval      = get(options, "maxeval", 0)
   opt.maxtime      = get(options, "maxtime", 0)
-  opt.initial_step = get(options, "initial_step", p0./10.0)
+  initial_step     = get(options, "initial_step", p0./10.0)
+  initial_step[(initial_step .== 0)] .= 0.1
+  opt.initial_step = initial_step
   opt.stopval      = get(options, "stopval", -Inf)
   opt.lower_bounds = nll.lower_bounds
   opt.upper_bounds = nll.upper_bounds
