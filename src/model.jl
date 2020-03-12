@@ -53,7 +53,8 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   # function at an absolute scale. This is because I am assuming that
   # the function is a log-likelihood, and thus has statistical information
   # in its derivative, but may be shifting by a constant NOT a scale factor.
-  p0 = [v.init for v in nll.parameters]
+  p0 = get(options, "p0", [v.init for v in nll.parameters])
+
   opt.ftol_abs     = get(options, "ftol_abs", 1e-6)
   opt.ftol_rel     = get(options, "ftol_rel", 0)
   opt.xtol_rel     = get(options, "xtol_rel", 0)
