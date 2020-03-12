@@ -65,8 +65,7 @@ function profile!(name, results; kwargs...)
     xeval -= step
     count += 1
     if count > 1000
-      println("trials > 1000 -- ", val)
-      @show nll_left
+      @warn "Profiling hit limit (1000 steps)"
       break
     end
   end
@@ -99,8 +98,7 @@ function profile!(name, results; kwargs...)
     xeval += step
     count += 1
     if count > 1000
-      println("trials > 1000 -- ", val)
-      @show nll_right
+      @warn "Profiling hit limit (1000 steps)"
       break
     end
   end

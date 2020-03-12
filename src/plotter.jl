@@ -25,7 +25,6 @@ function interval_plot(results, name)
     "_{-$(ns)}\$"
   plot(x, y, label=labeluse)
   vlines(low, 0, y[x .>= low][1], color="red")
-  @show y[x .>= low][1]
   vlines(high, 0, y[x .>= high][1], color="red")
   ylim(0, 1.2)
   xlim(minimum(x), maximum(x))
