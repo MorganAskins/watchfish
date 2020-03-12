@@ -1,4 +1,29 @@
-function profile!(name, results; stop=5, step=1.0, prior=nothing)
+"""
+    function profile!(name, results; kwargs...)
+
+Compute the profiled likelihood over a single parameter of
+interest given by `name`.
+
+# Arguments
+- `name::String`: parameter of interest
+- `results::Results`: fit results
+- `stop::Float64=5.0`: Maximum ΔLog(Likelihood)
+- `step::Float64=1.0`: Incremental step of the parameter of interest
+- `prior=nothing`: Prior probability of the parameter of interest
+"""
+function profile!(name, results; kwargs...)
+  kwargs = Dict(kwargs)
+  stop = get(kwargs, :stop, 5.0)
+  step = get(kwargs, :step, 1.0)
+  prior = get(kwargs, :prior, nothing)
+  
+  fitterOptions = get(kwargs, :fitteroptions, nothing)
+  if fitterOptions != nothing
+    for (k, v) in fitterOptions
+      setproperty!(results.opt, k, v)
+    end
+  end
+
   idx = 0
   for (i, p) in enumerate(results.model.params)
     if p.name == name
@@ -16,7 +41,7 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
   nlow = copy(results.lower_bounds)
   nhigh = copy(results.upper_bounds)
   p0 = copy(results.min_parameters)
-  val = 0
+  val = copy(results.min_objective)
   xeval = p0[idx]
   count = 0
   while (val-results.min_objective) < stop
@@ -25,13 +50,14 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
     results.opt.lower_bounds = nlow
     results.opt.upper_bounds = nhigh
     p0[idx] = xeval
-    init_step = p0./10.0
+    init_step = get(kwargs, :init_step, p0./10.0)
     init_step[idx] = xeval * 1e-6
     init_step[(init_step .== 0)] .= 0.1
     results.opt.initial_step=init_step
     val, minx, ret = optimize!(results.opt, p0)
     likelihood_value = exp(-(val-results.min_objective))
     if (likelihood_value == Inf) || (likelihood_value < 0)
+      println("CYA", likelihood_value)
       break
     end
     push!(nll_left, likelihood_value )
@@ -50,7 +76,7 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
   nlow = copy(results.lower_bounds)
   nhigh = copy(results.upper_bounds)
   p0 = copy(results.min_parameters)
-  val = 0
+  val = copy(results.min_objective)
   xeval = p0[idx]
   count = 0
   while (val-results.min_objective) < stop
@@ -59,7 +85,7 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
     results.opt.lower_bounds = nlow
     results.opt.upper_bounds = nhigh
     p0[idx] = xeval
-    init_step = p0./10.0
+    init_step = get(kwargs, :init_step, p0./10.0)
     init_step[idx] = xeval * 1e-6
     init_step[(init_step .== 0)] .= 0.1
     results.opt.initial_step=init_step
@@ -89,8 +115,13 @@ function profile!(name, results; stop=5, step=1.0, prior=nothing)
   return x, nll
 end
 
-function compute_profiled_uncertainties!(results 
-                                         ; CL=nothing, σ=nothing, mode="FC")
+function compute_profiled_uncertainties!(results; kwargs...)
+  kwargs = Dict(kwargs)
+  CL = get(kwargs, :CL, nothing)
+  σ = get(kwargs, :σ, nothing)
+  mode = get(kwargs, :mode, "FC")
+
+  arraystep = get(kwargs, :arraystep, nothing)
   if CL != nothing
     α = CL
   elseif σ != nothing
@@ -98,8 +129,12 @@ function compute_profiled_uncertainties!(results
   else
     α = 0.90
   end
-  for param in results.model.params
-    profile!(param.name, results)
+  for (idx,param) in enumerate(results.model.params)
+    if arraystep != nothing
+      profile!(param.name, results; step=arraystep[idx], kwargs...)
+    else
+      profile!(param.name, results; kwargs...)
+    end
     uncertainty!(param.name, results; CL=α, mode=mode)
   end
 end

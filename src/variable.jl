@@ -47,3 +47,10 @@ struct Dataset <: Variable
     new( name, name, true )
   end
 end
+
+mutable struct Observable{T<:Real}
+  name::String
+  sname::Symbol
+  min::T
+  max::T
+end

@@ -67,7 +67,7 @@ mutable struct NLogLikelihood
       seval *= ") +"
     end
     seval = seval[1:end-1]
-    #@show seval
+    @debug "Likelihood function" seval
     ff = eval(Meta.parse("x->"*seval))
     new(ff, nparams, vv, params, lower_bounds, upper_bounds)
   end
@@ -98,7 +98,8 @@ function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
   etp_model = get(kwargs, :extrapolate, 0)
   h = StatsBase.fit( StatsBase.Histogram, df[!, axis], bins)
   hx, hy = (h.edges[1][2:end] + h.edges[1][1:end-1])/2.0, h.weights
-  hy = hy ./ sum(hy)
+  #hx, hy = h.edges[1][2:end], h.weights
+  hy = hy ./ sum(hy) ./ (hx[2]-hx[1])
   itp.extrapolate( 
       itp.interpolate((hx,), hy, itp.Gridded(itp_model)), etp_model
   )

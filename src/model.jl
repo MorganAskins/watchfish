@@ -25,8 +25,8 @@ mutable struct Results
 end
 
 """
-optimize_model!(m::Model, nll::NLogLikelihood;
-  lower_bounds=nothing, upper_bounds=nothing)
+    optimize_model!(m::Model, nll::NLogLikelihood;
+                    lower_bounds=nothing, upper_bounds=nothing)
 
 Currently NLopt is used for minimizing the objective function.
 optimize_model! produces the objective function from the given
@@ -68,6 +68,13 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   opt.upper_bounds = nll.upper_bounds
 
   opt.min_objective = objective
+  try
+    nll.objective(p0)
+  catch e
+    @error "Problems contructing objective function"
+    println(e)
+  end
+  # Test before optimizing
   (minf, minx, ret) = optimize!(opt, p0)
   ## If we fit twice we can go coarse the first time and then re-evaluate
   initial_step = minx ./ 10.0
