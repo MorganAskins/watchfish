@@ -44,7 +44,8 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
     end
     nll.objective(x)
   end
-  opt = Opt(:LN_SBPLX, nll.numparams)
+  opt_use = get(options, "optimizer", :LN_SBPLX)
+  opt = Opt(opt_use, nll.numparams)
   # A note here on tolerence. With nlopt one can specify four
   # types of tolerence for a stopping condition. Either on the
   # value of the objective function, or on the values of the parameters.
@@ -54,6 +55,7 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   # the function is a log-likelihood, and thus has statistical information
   # in its derivative, but may be shifting by a constant NOT a scale factor.
   p0 = get(options, "p0", [v.init for v in nll.parameters])
+  trials = get(options, "trials", 1)
 
   opt.ftol_abs     = get(options, "ftol_abs", 1e-6)
   opt.ftol_rel     = get(options, "ftol_rel", 0)
@@ -69,12 +71,34 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   opt.upper_bounds = nll.upper_bounds
 
   opt.min_objective = objective
-  try
-    nll.objective(p0)
-  catch e
-    @error "Problems contructing objective function"
-    println(e)
+  # FIXME: This always fails
+  #try
+  #  nll.objective(p0)
+  #catch e
+  #  @error "Problems contructing objective function"
+  #  println(e)
+  #end
+  # We will loop over trials, if trials > 1 then we will random sample
+  if trials > 1
+    # We would like to sample a few fits then start near the best
+    minf_set = Array{Float64}(undef, 0)
+    p0_set = Array{Array{Float64}}(undef, 0)
+    for tr in collect(1:trials)
+      p0 = Array{Float64}(undef, 0)
+      for v in nll.parameters
+        if v.samplewidth != Inf
+          push!(p0, randn()*v.samplewidth + v.init)
+        else
+          push!(p0, v.init)
+        end
+      end
+      (minf, minx, ret) = optimize!(opt, p0)
+      push!(p0_set, p0)
+      push!(minf_set, minf)
+    end
+    p0 = p0_set[ (minf_set .== minimum(minf_set)) ][1]
   end
+
   # Test before optimizing
   (minf, minx, ret) = optimize!(opt, p0)
   ## If we fit twice we can go coarse the first time and then re-evaluate
