@@ -45,7 +45,10 @@ julia> batlog.([12.0, 1e6, 0])
   -100000.0
 ```
 """
-function batlog(x::Float64; up::Float64=100.0, down::Float64=-100.0)
+function batlog(x::Float64; up::Float64=1000.0, down::Float64=-1000.0)
+  if x < 0
+    return -1e6
+  end
   y = log(x)
   minimum([up, maximum([down, y])])
 end
