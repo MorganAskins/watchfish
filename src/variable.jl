@@ -11,7 +11,7 @@ mutable struct Parameter <: Variable
   bounds::Tuple{Float64, Float64}
   # Post fit information
   samplewidth::Float64
-  efficiencies::Array{Float64}
+  efficiencies::Dict
   fit::Float64
   low::Float64
   high::Float64
@@ -19,15 +19,15 @@ mutable struct Parameter <: Variable
   likelihood_y::Array{Float64}
   function Parameter( name::String; kwargs... )
     kwargs = Dict(kwargs)
-    info         = get(kwargs, "info", "")
-    min          = get(kwargs, "min", -Inf)
-    max          = get(kwargs, "max", Inf)
-    init         = get(kwargs, "init", 0.0)
-    units        = get(kwargs, "units", "")
-    constant     = get(kwargs, "constant", false)
-    bounds       = get(kwargs, "bounds", (-Inf, Inf) )
-    samplewidth  = get(kwargs, "samplewidth", 0.0)
-    efficiencies = get(kwargs, "efficiencies", Array{Float64}(undef, 0))
+    info         = get(kwargs, :info, "")
+    min          = get(kwargs, :min, -Inf)
+    max          = get(kwargs, :max, Inf)
+    init         = get(kwargs, :init, 0.0)
+    units        = get(kwargs, :units, "")
+    constant     = get(kwargs, :constant, false)
+    bounds       = get(kwargs, :bounds, (-Inf, Inf) )
+    samplewidth  = get(kwargs, :samplewidth, 0.0)
+    efficiencies = get(kwargs, :efficiencies, Dict())
     new( name, info, min, max, init, units, constant, bounds,
          samplewidth, efficiencies, 
          0.0, 0.0, 0.0,

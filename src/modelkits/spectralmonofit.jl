@@ -4,8 +4,10 @@ struct SingleSpectra
   f
   p::Parameter
   o::Observable
-  df::DataFrame
+  df::Symbol
 end
+
+
 
 """
     SpectralMonofit()
@@ -24,7 +26,7 @@ mutable struct SpectralMonofit <: Model
   nll::NLogLikelihood
   # Additional parameters
   spectra::Array{SingleSpectra}
-  datasets::Array{DataFrame}
+  datasets::Array{Symbol}
   observables::Array{Observable}
   function SpectralMonofit(observables::Symbol...)
     new( [], [], NLogLikelihood(), 
@@ -37,12 +39,24 @@ struct SpectralPDF
   f::String
 end
 
+"""
+    generate_mock_dataset(m::SpectralMonofit; kwargs...)
+
+words
+
+# Arguments
+- `m::SpectralMonofit`: Specific model type
+- `time::Float64`: Length of the dataset
+"""
 function generate_mock_dataset(m::SpectralMonofit; kwargs...)
   kwargs = Dict(kwargs)
+  time = get(kwargs, :time, 1.0)
   # Clean out the old data
   for d in m.datasets
-    deleterows!(d, 1:size(d, 1))
+    df = eval(d)
+    deleterows!(df, 1:size(df, 1))
   end
+  # Poisson random number of events
   for p in m.params
     p.fit = rand(Poisson(p.init))
   end
@@ -51,22 +65,97 @@ function generate_mock_dataset(m::SpectralMonofit; kwargs...)
             randomFromSpectrum(sp.f; count=sp.p.fit, min=sp.o.min, max=sp.o.max))
   end
   # Should global the data
-  for d in m.datasets
-    add_dataset(Symbol(d), d)
+  #for d in m.datasets
+  #  add_dataset(d, d)
+  #end
+end
+
+
+mutable struct EventCounter
+  count::Int64
+  spectra::Array{SingleSpectra}
+  obs::Dict{Symbol,Array{Float64}}
+  function EventCounter(count::Int64)
+    new( count, Array{SingleSpectra}(undef, 0), Dict() )
   end
 end
 
+function build_dataframe(ev::EventCounter)
+  df = DataFrame()
+  for (k,v) in ev.obs
+    df[!, k] = v
+  end
+  df
+end
+
+function compare_and_add!(df1::DataFrame, df2)
+  names1 = names(df1)
+  names2 = names(df2)
+  for n1 in names1
+    if !(n1 in names2)
+      df2[!, n1] = zeros(size(df2, 1))
+    end
+  end
+  append!(df1, df2)
+end
+
+
+function genmo(m::SpectralMonofit; kwargs...)
+  kwargs = Dict(kwargs)
+  time = get(kwargs, :time, 1.0)
+
+  for d in m.datasets
+    df = eval(d)
+    deleterows!(df, 1:size(df, 1))
+    @debug "Deleting from" d
+  end
+  #dictDPCount = Dict{Symbol, Dict{String, Int64}}(sp.df=>Dict() for sp in m.spectra)
+  dictDPCount = Dict{Symbol, Dict{String, EventCounter}}(sp.df=>Dict() for sp in m.spectra)
+  for sp in m.spectra
+    param = sp.p
+    name = param.name
+    count = rand(Poisson(param.efficiencies[sp.df] * time * param.init))
+    if !haskey( dictDPCount[sp.df], name )
+      dictDPCount[sp.df][name] = EventCounter(count)
+    end
+    push!( dictDPCount[sp.df][name].spectra, sp )
+  end
+
+  for (dset, evdict ) in dictDPCount
+    for (pname, ev) in evdict
+      count = ev.count
+      for sp in ev.spectra
+        newdata = randomFromSpectrum(sp.f; count=count, min=sp.o.min, max=sp.o.max)
+        ev.obs[sp.o.sname] = newdata
+      end
+      dfnew = build_dataframe(ev)
+      compare_and_add!( getfield(Batman, dset), dfnew )
+      #append!( getfield(Batman, dset), dfnew )
+    end
+  end
+
+  #for sp in m.spectra
+  #  param = sp.p
+  #  for (ds, eff) in param.efficiencies
+  #    count = dictDPCount[sp.df][param.name]
+  #    dframe = getfield(Batman, sp.df)
+  #    newdata = randomFromSpectrum(sp.f; count=count, min=sp.o.min, max=sp.o.max)
+  #    @debug dframe newdata
+  #    append!( dframe[!, sp.o.sname], newdata )
+  #  end
+  #end
+end
+
 function constructPDF!(m::SpectralMonofit, p::Parameter, shapes, observables, ds::Symbol)
-  df = eval(ds)
-  if !(df in m.datasets)
-    push!(m.datasets, df)
+  if !(ds in m.datasets)
+    push!(m.datasets, ds)
   end
   seval = ""
   for (shp, obs) in zip(shapes, observables)
     fSymbol = Symbol(p.name*"_"*String(obs)*"_"* String(ds))
     add_function(fSymbol, shp)
     #push!(m.spectra, SingleSpectra(p, shp, obs, df))
-    push!(m.spectra, SingleSpectra(shp, p, observableFromSymbol(m,obs), df))
+    push!(m.spectra, SingleSpectra(shp, p, observableFromSymbol(m,obs), ds))
     seval *= "$fSymbol($ds[!, :$obs]).*"
   end
   seval = seval[1:end-2]
@@ -128,13 +217,19 @@ function combinePDFs!(m::SpectralMonofit, spectralpdfs::Array{SpectralPDF},
   push!(m.pdflist, NLogPDF(unique_name, plist...))
 end
 
-function add_parameter!(m::SpectralMonofit, name::String, init; σ=Inf )
+function add_parameter!(m::SpectralMonofit, name::String, init; σ=Inf, kwargs... )
+  kwargs = Dict(kwargs)
+  dsEfficiency = get(kwargs, :dsEfficiency, Dict{Symbol, Float64}())
   p = getparam(m, name)
   if p != nothing
     @warn name*" already exists in model."
+    push!( p.efficiencies, dsEfficiency )
     return p
   end
+  @debug "Init" init
   p = Parameter(name; init=init)
+  push!( p.efficiencies, dsEfficiency )
+  p.samplewidth = σ
   push!(m.params, p)
   if σ != Inf
     a = Constant(name*"_mu", init)
