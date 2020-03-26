@@ -72,11 +72,12 @@ end
 
 
 mutable struct EventCounter
+  name::String
   count::Int64
   spectra::Array{SingleSpectra}
   obs::Dict{Symbol,Array{Float64}}
-  function EventCounter(count::Int64)
-    new( count, Array{SingleSpectra}(undef, 0), Dict() )
+  function EventCounter(name::String, count::Int64)
+    new( name, count, Array{SingleSpectra}(undef, 0), Dict() )
   end
 end
 
@@ -85,6 +86,7 @@ function build_dataframe(ev::EventCounter)
   for (k,v) in ev.obs
     df[!, k] = v
   end
+  df[!, :meta] = repeat([ev.name], ev.count)
   df
 end
 
@@ -93,7 +95,12 @@ function compare_and_add!(df1::DataFrame, df2)
   names2 = names(df2)
   for n1 in names1
     if !(n1 in names2)
-      df2[!, n1] = zeros(size(df2, 1))
+      df2[!, n1] = typeof(df1[!, n1])(undef, size(df2,1))
+    end
+  end
+  for n2 in names2
+    if !(n2 in names1)
+      df1[!, n2] = typeof(df2[!, n2])(undef, size(df1,1))
     end
   end
   append!(df1, df2)
@@ -103,20 +110,23 @@ end
 function genmo(m::SpectralMonofit; kwargs...)
   kwargs = Dict(kwargs)
   time = get(kwargs, :time, 1.0)
+  verbose = get(kwargs, :verbose, false)
 
   for d in m.datasets
     df = eval(d)
     deleterows!(df, 1:size(df, 1))
     @debug "Deleting from" d
   end
-  #dictDPCount = Dict{Symbol, Dict{String, Int64}}(sp.df=>Dict() for sp in m.spectra)
   dictDPCount = Dict{Symbol, Dict{String, EventCounter}}(sp.df=>Dict() for sp in m.spectra)
   for sp in m.spectra
     param = sp.p
     name = param.name
     count = rand(Poisson(param.efficiencies[sp.df] * time * param.init))
+    if verbose
+      println("Name: ", param.name, " Eff: ", param.efficiencies, " Init: ", param.init, " time ", time, " count ", count)
+    end
     if !haskey( dictDPCount[sp.df], name )
-      dictDPCount[sp.df][name] = EventCounter(count)
+      dictDPCount[sp.df][name] = EventCounter(name, count)
     end
     push!( dictDPCount[sp.df][name].spectra, sp )
   end
@@ -130,21 +140,39 @@ function genmo(m::SpectralMonofit; kwargs...)
       end
       dfnew = build_dataframe(ev)
       compare_and_add!( getfield(Batman, dset), dfnew )
-      #append!( getfield(Batman, dset), dfnew )
     end
   end
-
-  #for sp in m.spectra
-  #  param = sp.p
-  #  for (ds, eff) in param.efficiencies
-  #    count = dictDPCount[sp.df][param.name]
-  #    dframe = getfield(Batman, sp.df)
-  #    newdata = randomFromSpectrum(sp.f; count=count, min=sp.o.min, max=sp.o.max)
-  #    @debug dframe newdata
-  #    append!( dframe[!, sp.o.sname], newdata )
-  #  end
-  #end
+  _updateDataFunctions!(m)
 end
+
+function _updateDataFunctions!(m::SpectralMonofit)
+  for sp in m.spectra
+    pname = sp.p.name
+    obs = sp.o.name
+    fSymbol = Symbol(pname*"_"*obs*"_"*String(sp.df))
+    add_array(fSymbol, sp.f( eval(sp.df)[!, sp.o.sname] ))
+  end
+end
+
+#function constructPDF!(m::SpectralMonofit, p::Parameter, shapes, observables, ds::Symbol)
+#  if !(ds in m.datasets)
+#    push!(m.datasets, ds)
+#  end
+#  seval = ""
+#  for (shp, obs) in zip(shapes, observables)
+#    fSymbol = Symbol(p.name*"_"*String(obs)*"_"* String(ds))
+#    add_function(fSymbol, shp)
+#    #push!(m.spectra, SingleSpectra(p, shp, obs, df))
+#    push!(m.spectra, SingleSpectra(shp, p, observableFromSymbol(m,obs), ds))
+#    # Lets add an array
+#    seval *= "$fSymbol($ds[!, :$obs]).*"
+#  end
+#  seval = seval[1:end-2]
+#  @debug seval
+#  unique_name = "spectralPDF_"*p.name*"_"*String(ds)
+#  add_function(unique_name, eval(Meta.parse("()->"*seval)))
+#  SpectralPDF(p, unique_name)
+#end
 
 function constructPDF!(m::SpectralMonofit, p::Parameter, shapes, observables, ds::Symbol)
   if !(ds in m.datasets)
@@ -153,10 +181,11 @@ function constructPDF!(m::SpectralMonofit, p::Parameter, shapes, observables, ds
   seval = ""
   for (shp, obs) in zip(shapes, observables)
     fSymbol = Symbol(p.name*"_"*String(obs)*"_"* String(ds))
-    add_function(fSymbol, shp)
+    add_array(fSymbol, shp(eval(ds)[!, obs]))
     #push!(m.spectra, SingleSpectra(p, shp, obs, df))
     push!(m.spectra, SingleSpectra(shp, p, observableFromSymbol(m,obs), ds))
-    seval *= "$fSymbol($ds[!, :$obs]).*"
+    # Lets add an array
+    seval *= "$fSymbol.*"
   end
   seval = seval[1:end-2]
   @debug seval

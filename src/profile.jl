@@ -16,6 +16,7 @@ function profile!(name, results; kwargs...)
   stop = get(kwargs, :stop, 5.0)
   step = get(kwargs, :step, 1.0)
   prior = get(kwargs, :prior, nothing)
+  verbose = get(kwargs, :verbose, false)
   
   fitterOptions = get(kwargs, :fitteroptions, nothing)
   if fitterOptions != nothing
@@ -33,6 +34,9 @@ function profile!(name, results; kwargs...)
   if idx == 0
     return 0, 0
   end
+  ## Store these and report if verbose
+  verb_count = 0
+  verb_steps = Array{Float64}(undef, 0)
   #component = results.model.component_dict[name]
   param = results.model.params[idx]
   ## Go left
@@ -50,12 +54,13 @@ function profile!(name, results; kwargs...)
     results.opt.lower_bounds = nlow
     results.opt.upper_bounds = nhigh
     p0[idx] = xeval
-    init_step = get(kwargs, :init_step, p0./10.0)
+    init_step = get(kwargs, :init_step, p0./100.0)
     init_step[idx] = xeval * 1e-6
     init_step[(init_step .== 0)] .= 0.1
     results.opt.initial_step=init_step
     val, minx, ret = optimize!(results.opt, p0)
     likelihood_value = exp(-(val-results.min_objective))
+    push!(verb_steps, results.opt.numevals)
     if (likelihood_value == Inf) || (likelihood_value < 0)
       println("CYA", likelihood_value)
       break
@@ -69,6 +74,7 @@ function profile!(name, results; kwargs...)
       break
     end
   end
+  verb_count += count
   ## Go right
   x_right = []
   nll_right = []
@@ -84,12 +90,13 @@ function profile!(name, results; kwargs...)
     results.opt.lower_bounds = nlow
     results.opt.upper_bounds = nhigh
     p0[idx] = xeval
-    init_step = get(kwargs, :init_step, p0./10.0)
+    init_step = get(kwargs, :init_step, p0./100.0)
     init_step[idx] = xeval * 1e-6
     init_step[(init_step .== 0)] .= 0.1
     results.opt.initial_step=init_step
     val, minx, ret = optimize!(results.opt, p0)
     likelihood_value = exp(-(val-results.min_objective))
+    push!(verb_steps, results.opt.numevals)
     if (likelihood_value == Inf) || (likelihood_value < 0)
       break
     end
@@ -102,6 +109,7 @@ function profile!(name, results; kwargs...)
       break
     end
   end
+  verb_count += count
   x = append!(reverse(x_left), x_right)
   nll = append!(reverse(nll_left), nll_right)
   ## update the component with the likelihood results
@@ -110,8 +118,37 @@ function profile!(name, results; kwargs...)
   end
   param.likelihood_x = x
   param.likelihood_y = nll
+  if verbose
+    @show verb_count
+    @show verb_steps
+  end
   return x, nll
 end
+
+function compute_profiled_uncertainties!(results; kwargs...)
+  kwargs = Dict(kwargs)
+  CL = get(kwargs, :CL, nothing)
+  σ = get(kwargs, :σ, nothing)
+  mode = get(kwargs, :mode, "FC")
+
+  arraystep = get(kwargs, :arraystep, nothing)
+  if CL != nothing
+    α = CL
+  elseif σ != nothing
+    α = erf(σ/sqrt(2))
+  else
+    α = 0.90
+  end
+  for (idx,param) in enumerate(results.model.params)
+    if arraystep != nothing
+      profile!(param.name, results; step=arraystep[idx], kwargs...)
+    else
+      profile!(param.name, results; kwargs...)
+    end
+    uncertainty!(param.name, results; CL=α, mode=mode)
+  end
+end
+
 
 function compute_profiled_uncertainties!(results; kwargs...)
   kwargs = Dict(kwargs)

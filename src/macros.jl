@@ -35,6 +35,14 @@ function add_dataset(name::String, df::DataFrame)
   eval(:( $(Symbol(name)) = $df ))
 end
 
+function add_array(name::Symbol, arr::Array{Float64})
+  eval(:( $(name) = $arr ))
+end
+
+function add_array(name::String, arr::Array{Float64})
+  eval(:( $(Symbol(name)) = $arr ))
+end
+
 """
 @add_function(name, function)
 
