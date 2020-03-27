@@ -99,7 +99,8 @@ function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
   h = StatsBase.fit( StatsBase.Histogram, df[!, axis], bins)
   hx, hy = (h.edges[1][2:end] + h.edges[1][1:end-1])/2.0, h.weights
   #hx, hy = h.edges[1][2:end], h.weights
-  hy = hy ./ sum(hy) ./ (hx[2]-hx[1])
+  #hy = hy ./ sum(hy) ./ (hx[2]-hx[1])
+  hy = hy ./ sum(hy)
   itp.extrapolate( 
       itp.interpolate((hx,), hy, itp.Gridded(itp_model)), etp_model
   )
