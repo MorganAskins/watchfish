@@ -96,7 +96,9 @@ function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
   bins = get(kwargs, :bins, 100)
   itp_model = get(kwargs, :interpolate, itp.Constant())
   etp_model = get(kwargs, :extrapolate, 0)
-  h = StatsBase.fit( StatsBase.Histogram, df[!, axis], bins)
+  weight_symbol = get(kwargs, :weight, nothing)
+  mass = weight_symbol != nothing ? StatsBase.weights(df[!, weight_symbol]) : StatsBase.weights(ones(size(df[!, axis])))
+  h = StatsBase.fit( StatsBase.Histogram, df[!, axis], mass, bins)
   hx, hy = (h.edges[1][2:end] + h.edges[1][1:end-1])/2.0, h.weights
   #hx, hy = h.edges[1][2:end], h.weights
   #hy = hy ./ sum(hy) ./ (hx[2]-hx[1])
