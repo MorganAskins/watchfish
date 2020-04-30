@@ -7,8 +7,6 @@ struct SingleSpectra
   df::Symbol
 end
 
-
-
 """
     SpectralMonofit()
 
@@ -142,10 +140,10 @@ function genmo(m::SpectralMonofit; kwargs...)
       compare_and_add!( getfield(Batman, dset), dfnew )
     end
   end
-  _updateDataFunctions!(m)
+  updateDataFunctions!(m)
 end
 
-function _updateDataFunctions!(m::SpectralMonofit)
+function updateDataFunctions!(m::SpectralMonofit)
   for sp in m.spectra
     pname = sp.p.name
     obs = sp.o.name
@@ -153,26 +151,6 @@ function _updateDataFunctions!(m::SpectralMonofit)
     add_array(fSymbol, sp.f( eval(sp.df)[!, sp.o.sname] ))
   end
 end
-
-#function constructPDF!(m::SpectralMonofit, p::Parameter, shapes, observables, ds::Symbol)
-#  if !(ds in m.datasets)
-#    push!(m.datasets, ds)
-#  end
-#  seval = ""
-#  for (shp, obs) in zip(shapes, observables)
-#    fSymbol = Symbol(p.name*"_"*String(obs)*"_"* String(ds))
-#    add_function(fSymbol, shp)
-#    #push!(m.spectra, SingleSpectra(p, shp, obs, df))
-#    push!(m.spectra, SingleSpectra(shp, p, observableFromSymbol(m,obs), ds))
-#    # Lets add an array
-#    seval *= "$fSymbol($ds[!, :$obs]).*"
-#  end
-#  seval = seval[1:end-2]
-#  @debug seval
-#  unique_name = "spectralPDF_"*p.name*"_"*String(ds)
-#  add_function(unique_name, eval(Meta.parse("()->"*seval)))
-#  SpectralPDF(p, unique_name)
-#end
 
 function constructPDF!(m::SpectralMonofit, p::Parameter, shapes, observables, ds::Symbol)
   if !(ds in m.datasets)

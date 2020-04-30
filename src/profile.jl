@@ -110,8 +110,8 @@ function profile!(name, results; kwargs...)
     end
   end
   verb_count += count
-  x = append!(reverse(x_left), x_right)
-  nll = append!(reverse(nll_left), nll_right)
+  x = append!(reverse(x_left), x_right[2:end])
+  nll = append!(reverse(nll_left), nll_right[2:end])
   ## update the component with the likelihood results
   if prior != nothing
     nll = nll .* prior.(x)
@@ -124,31 +124,6 @@ function profile!(name, results; kwargs...)
   end
   return x, nll
 end
-
-function compute_profiled_uncertainties!(results; kwargs...)
-  kwargs = Dict(kwargs)
-  CL = get(kwargs, :CL, nothing)
-  σ = get(kwargs, :σ, nothing)
-  mode = get(kwargs, :mode, "FC")
-
-  arraystep = get(kwargs, :arraystep, nothing)
-  if CL != nothing
-    α = CL
-  elseif σ != nothing
-    α = erf(σ/sqrt(2))
-  else
-    α = 0.90
-  end
-  for (idx,param) in enumerate(results.model.params)
-    if arraystep != nothing
-      profile!(param.name, results; step=arraystep[idx], kwargs...)
-    else
-      profile!(param.name, results; kwargs...)
-    end
-    uncertainty!(param.name, results; CL=α, mode=mode)
-  end
-end
-
 
 function compute_profiled_uncertainties!(results; kwargs...)
   kwargs = Dict(kwargs)
