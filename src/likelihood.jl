@@ -99,15 +99,23 @@ function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
   etp_model = get(kwargs, :extrapolate, 0)
   weight_symbol = get(kwargs, :weight, nothing)
   mass = weight_symbol != nothing ? StatsBase.weights(df[!, weight_symbol]) : StatsBase.weights(ones(size(df[!, axis])))
-  h = StatsBase.fit( StatsBase.Histogram, df[!, axis], mass, bins)
+  h = StatsBase.fit( StatsBase.Histogram, df[!, axis], mass, bins; closed=:right )
   hx, hy = (h.edges[1][2:end] + h.edges[1][1:end-1])/2.0, h.weights
   #hx, hy = h.edges[1][2:end], h.weights
-  #hy = hy ./ sum(hy) ./ (hx[2]-hx[1])
-  hy = hy ./ sum(hy)
+  hy = hy ./ sum(hy) ./ (hx[2]-hx[1])
+  #hy = hy ./ sum(hy)
   itp.extrapolate( 
       itp.interpolate((hx,), hy, itp.Gridded(itp_model)), etp_model
   )
 end
+## Okay, lets throw this in a temp funciton
+#function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
+#  a = rand()*10.0
+#  b = rand()*3.0
+#  #(x)->(a.*x .+ b)./(a+b)
+#  norm = (cos(b)-cos(a+b)+a)/(2*a)
+#  (x)-> (sin.(a.*x .+ b) .+ 1) ./ 2 ./ norm
+#end
 
 """
     KdePDF(df::DataFrame, axis::Symbol; kwargs...)

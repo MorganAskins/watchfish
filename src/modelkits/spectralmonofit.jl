@@ -119,7 +119,10 @@ function genmo(m::SpectralMonofit; kwargs...)
   for sp in m.spectra
     param = sp.p
     name = param.name
-    count = rand(Poisson(param.efficiencies[sp.df] * time * param.init))
+    count::Int64 = rand(Poisson(param.efficiencies[sp.df] * time * param.init))
+    ### OVERRIDE
+    ### count = floor(param.efficiencies[sp.df] * time * param.init)
+    ###
     if verbose
       println("Name: ", param.name, " Eff: ", param.efficiencies, " Init: ", param.init, " time ", time, " count ", count)
     end
@@ -141,6 +144,7 @@ function genmo(m::SpectralMonofit; kwargs...)
     end
   end
   updateDataFunctions!(m)
+  dictDPCount
 end
 
 function updateDataFunctions!(m::SpectralMonofit)
@@ -203,7 +207,7 @@ function combinePDFs!(m::SpectralMonofit, spectralpdfs::Array{SpectralPDF},
     end
     if livetime != nothing
       tname = livetime.name
-      seval *= "$tname*"
+      seval *= "$tname*" ## Is this wrong???!?!?!
       extended *= "$tname*"
     end
     seval *= "$vname*$f().+"
@@ -281,7 +285,7 @@ end
 Return an `Array{Float64}` set of random elements from a 1D pdf given by `f`
 between the values of `min` and `max` with a maximum probability of `top`.
 """
-function randomFromSpectrum(f; min=0.0, max=1.0, top=1.0, count=1)
+function randomFromSpectrum(f; min=0.0, max=1.0, top=10.0, count=1)
   xArr = Array{Float64}(undef, 0)
   for c in collect(1:count)
     while true

@@ -38,13 +38,24 @@ TODO: Move lower_bounds and upper_bounds into options dict
 function optimize_model!(m::Model, nll::NLogLikelihood; 
                          lower_bounds=nothing, upper_bounds=nothing,
                          options=Dict() )
+  # Selection of optimizers.
+  optimizer_selector = Dict(
+                            "sbplx"  => :LN_SBPLX,
+                            "cobyla" => :LN_COBYLA,
+                            "bobyqa" => :LN_BOBYQA,
+                            "praxis" => :LN_PRAXIS,
+                            "nelder" => :LN_NELDERMEAD
+                           )
+  opt_string = get(options, "optimizer", "sbplx")
+  @debug "Using optimizer" opt_string
+  opt_use = optimizer_selector[opt_string]
   function objective(x::Vector, grad::Vector)
     if length(grad)>0
       grad = 2x
     end
     nll.objective(x)
   end
-  opt_use = get(options, "optimizer", :LN_SBPLX)
+  #opt_use = get(options, "optimizer", :LN_SBPLX)
   opt = Opt(opt_use, nll.numparams)
   # A note here on tolerence. With nlopt one can specify four
   # types of tolerence for a stopping condition. Either on the
@@ -79,6 +90,7 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   #  println(e)
   #end
   # We will loop over trials, if trials > 1 then we will random sample
+  best_minf = 1e9
   if trials > 1
     # We would like to sample a few fits then start near the best
     minf_set = Array{Float64}(undef, 0)
@@ -97,15 +109,20 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
       push!(minf_set, minf)
     end
     p0 = p0_set[ (minf_set .== minimum(minf_set)) ][1]
+    best_minf = minimum(minf_set)
   end
 
   # Test before optimizing
-  (minf, minx, ret) = optimize!(opt, p0)
+  # (minf, minx, ret) = optimize!(opt, p0)
   ## If we fit twice we can go coarse the first time and then re-evaluate
-  initial_step = minx ./ 10.0
+  # initial_step = minx ./ 10.0
   initial_step[(initial_step .== 0)] .= 0.1
   opt.initial_step = initial_step
-  (minf, minx, ret) = optimize!(opt, minx)
+  (minf, minx, ret) = optimize!(opt, p0)
+
+  if minf > best_minf
+    @show best_min minf
+  end
 
   numevals = opt.numevals
   for (i,p) in enumerate(m.params)
