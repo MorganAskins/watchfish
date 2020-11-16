@@ -82,6 +82,20 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   opt.upper_bounds = nll.upper_bounds
 
   opt.min_objective = objective
+  
+  # Global Opt
+  
+  gopt = Opt(:GN_CRS2_LM, nll.numparams)
+  global_upper = p0 * 100
+  #global_upper[(global_upper .< 100)] .= 100
+  gopt.lower_bounds = -global_upper
+  gopt.upper_bounds = global_upper
+  #gopt.ftol_rel = opt.ftol_rel
+  gopt.xtol_abs = opt.xtol_abs .* 1_000.0
+  gopt.min_objective = objective
+  (minf, minx, ret) = optimize!(gopt, p0)
+  p0 = minx
+
   # FIXME: This always fails
   #try
   #  nll.objective(p0)

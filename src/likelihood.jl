@@ -102,12 +102,58 @@ function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
   h = StatsBase.fit( StatsBase.Histogram, df[!, axis], mass, bins; closed=:right )
   hx, hy = (h.edges[1][2:end] + h.edges[1][1:end-1])/2.0, h.weights
   #hx, hy = h.edges[1][2:end], h.weights
+
+  # This works, but turning off for now
+  return function_from_hist(h)
+
+  ## SKIP BELOW
   hy = hy ./ sum(hy) ./ (hx[2]-hx[1])
   #hy = hy ./ sum(hy)
-  itp.extrapolate( 
-      itp.interpolate((hx,), hy, itp.Gridded(itp_model)), etp_model
-  )
+  #
+  f = itp.extrapolate( 
+        itp.interpolate((hx,), hy, itp.Gridded(itp_model)), etp_model
+      )
+  return x->f(x)
+  # Now we need a more precise integral
+  lowx = minimum(bins)
+  hix = maximum(bins)
+  bw = (hix - lowx) / length(bins) / 1_000_000.0
+  integral_range = collect(lowx:bw:hix)
+  integral = sum( f.(integral_range) )*bw
+  x->f(x)/integral
 end
+
+function function_from_hist(h::StatsBase.Histogram)
+  # Normalize
+  hx, hy = h.edges, h.weights
+  hx = hx[1]
+  hy = hy ./ sum( hy ) ./ (hx[2] - hx[1])
+  push!(hy, 0)
+  newfunc = function (x)
+    lasty = 0
+    for (testx, testy) in zip(hx, hy)
+      ## JUST CHANGED TO >=?
+      if testx > x
+        return lasty
+      end
+      lasty = testy
+    end
+    0
+  end
+  return x -> newfunc.(x)
+  ## We should test the function real quick I suppose
+  #bw = (hx[2] - hx[1]) / 1_000.0
+  #integral_range = collect(hx[1]:bw:hx[end])
+  #integral = sum( newfunc.(integral_range) )*bw
+  #@show "New Integral:: " integral
+  #newnewfunc = x->newfunc.(x) / integral
+  #bw = (hx[2] - hx[1]) / 10_000.0
+  #integral_range = collect(hx[1]:bw:hx[end])
+  #integral = sum( newnewfunc.(integral_range) )*bw
+  #@show "New New Integral:: " integral
+  #return x -> newnewfunc.(x)
+end
+
 ## Okay, lets throw this in a temp funciton
 #function HistogramPDF(df::DataFrame, axis::Symbol; kwargs...)
 #  a = rand()*10.0

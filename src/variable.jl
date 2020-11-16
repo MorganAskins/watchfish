@@ -11,7 +11,7 @@ mutable struct Parameter <: Variable
   bounds::Tuple{Float64, Float64}
   # Post fit information
   samplewidth::Float64
-  efficiencies::Dict
+  efficiencies::Dict{Symbol, Float64}
   fit::Float64
   low::Float64
   high::Float64
@@ -27,7 +27,7 @@ mutable struct Parameter <: Variable
     constant     = get(kwargs, :constant, false)
     bounds       = get(kwargs, :bounds, (-Inf, Inf) )
     samplewidth  = get(kwargs, :samplewidth, 0.0)
-    efficiencies = get(kwargs, :efficiencies, Dict())
+    efficiencies = get(kwargs, :efficiencies, Dict{Symbol, Float64}())
     new( name, info, min, max, init, units, constant, bounds,
          samplewidth, efficiencies, 
          0.0, 0.0, 0.0,

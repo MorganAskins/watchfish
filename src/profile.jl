@@ -13,10 +13,11 @@ interest given by `name`.
 """
 function profile!(name, results; kwargs...)
   kwargs = Dict(kwargs)
-  stop = get(kwargs, :stop, 5.0)
-  step = get(kwargs, :step, 1.0)
-  prior = get(kwargs, :prior, nothing)
-  verbose = get(kwargs, :verbose, false)
+  stop      = get(kwargs, :stop, 5.0)
+  step      = get(kwargs, :step, 1.0)
+  prior     = get(kwargs, :prior, nothing)
+  verbose   = get(kwargs, :verbose, false)
+  max_steps = get(kwargs, :maxsteps, 1000)
   
   fitterOptions = get(kwargs, :fitteroptions, nothing)
   if fitterOptions != nothing
@@ -32,8 +33,10 @@ function profile!(name, results; kwargs...)
     end
   end
   if idx == 0
+    @warn idx
     return 0, 0
   end
+  @show step
   ## Store these and report if verbose
   verb_count = 0
   verb_steps = Array{Float64}(undef, 0)
@@ -69,8 +72,8 @@ function profile!(name, results; kwargs...)
     push!(x_left, xeval)
     xeval -= step
     count += 1
-    if count > 1000
-      @warn "Profiling hit limit (1000 steps)"
+    if count > max_steps 
+      @warn "Profiling hit limit" max_steps
       break
     end
   end
@@ -104,8 +107,8 @@ function profile!(name, results; kwargs...)
     push!(x_right, xeval)
     xeval += step
     count += 1
-    if count > 1000
-      @warn "Profiling hit limit (1000 steps)"
+    if count > max_steps 
+      @warn "Profiling hit limit" max_steps
       break
     end
   end
