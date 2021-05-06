@@ -21,8 +21,10 @@ function bat_format(level, _module, group, id, file, line)
   return color, prefix, suffix
 end
 
-function bat_log()
+function bat_log(;kwargs...)
+  kwargs = Dict(kwargs)
   debugLevel = haskey(ENV, "JULIA_DEBUG") ? Logging.Debug : Logging.Info
+  debugLevel = get(kwargs, :level, debugLevel)
   Logging.ConsoleLogger( stdout, debugLevel; meta_formatter=bat_format )
 end
 

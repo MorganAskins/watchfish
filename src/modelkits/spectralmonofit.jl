@@ -113,7 +113,8 @@ function genmo(m::SpectralMonofit; kwargs...)
 
   for d in m.datasets
     df = eval(d)
-    deleterows!(df, 1:size(df, 1))
+    ## deleterows!(df, 1:size(df, 1)) # Old function?
+    delete!(df, 1:size(df, 1)) # New function?
     @debug "Deleting from" d
   end
   dictDPCount = Dict{Symbol, Dict{String, EventCounter}}(sp.df=>Dict() for sp in m.spectra)
@@ -288,6 +289,7 @@ end
 function add_parameter!(m::SpectralMonofit, name::String, init; σ=Inf, kwargs... )
   kwargs = Dict(kwargs)
   dsEfficiency = get(kwargs, :dsEfficiency, (Symbol(name)=>1.0))
+  bounds = get(kwargs, :bounds, (-Inf, Inf))
   p = getparam(m, name)
   if p != nothing
     @warn name*" already exists in model."
@@ -295,7 +297,7 @@ function add_parameter!(m::SpectralMonofit, name::String, init; σ=Inf, kwargs..
     return p
   end
   @debug "Init" init
-  p = Parameter(name; init=(init ))
+  p = Parameter(name; init=(init ), bounds=bounds)
   push!( p.efficiencies, dsEfficiency )
   p.samplewidth = σ
   push!(m.params, p)

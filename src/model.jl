@@ -85,6 +85,7 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   
   # Global Opt
   
+  #= Skipping the global optimization
   gopt = Opt(:GN_CRS2_LM, nll.numparams)
   global_upper = p0 * 100
   #global_upper[(global_upper .< 100)] .= 100
@@ -95,6 +96,7 @@ function optimize_model!(m::Model, nll::NLogLikelihood;
   gopt.min_objective = objective
   (minf, minx, ret) = optimize!(gopt, p0)
   p0 = minx
+  =#
 
   # FIXME: This always fails
   #try
